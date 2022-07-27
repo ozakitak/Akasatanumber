@@ -64,7 +64,11 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+
+import 'controller.dart';
 
 void main() => runApp(MyApp());
 
@@ -85,17 +89,37 @@ class MyApp extends StatelessWidget {
 }
 
 class MyStatefulWidget extends StatefulWidget {
-  const MyStatefulWidget({Key? key}) : super(key: key);
+   const MyStatefulWidget({Key? key}) : super(key: key);
 
   @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+   _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController mailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController comPassController = TextEditingController();
+
+
+
+
+
+  @override
+  Widget build(BuildContext context) {
+
+
+    //仮置き
+    final items = List<String>.generate(10000, (i) => "Item $i");
+    return ChangeNotifierProvider<Controller>(
+        create: (context) => Controller(),
+      child:
+      AllWidget(),
+    );
+  }
+
+}
+
+class AllWidget extends StatelessWidget {
+  const AllWidget({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +127,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     final Size size = MediaQuery.of(context).size;
 
     final items = List<String>.generate(10000, (i) => "Item $i");
+
+    final Controller controller = Provider.of<Controller>(context);
+
+    String inputNumber = "";
+    String mainNumber = "";
+    String subNumber = "";
+
     return Container(
         child: Stack(
           children: [
@@ -112,288 +143,457 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               height: size.height,
               color: Colors.white,
             ),
-            Container(
 
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey, //色
-                    spreadRadius: 2,
-                    blurRadius: 1,
-                    offset: Offset(0, 0),
-                  ),
-                ],
-                color: Color.fromARGB(1000, 217, 217, 217),
-              ),
-              width: size.width,
-              height: size.height / 6,
-              child:
-              Align(
-                  alignment: Alignment(0 ,0.85),
-                  child: Container(
-                    width: size.width - 20,
-                    height: size.height / 16,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white
+            //Header
+            HeaderBackground(size: size, inputNumberController: controller.inputNumberController),
 
-                    ),
-                    child: Row(
-                      children: [
-
-                        Container(
-                          width:  size.width - 70,
-                          child: TextField(
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "　　数字を入力してください",
-
-
-                            ),
-                          ),
-                        ),
-                        //deleteButton
-                        SizedBox(
-                          height: size.height / 50,
-                          child:
-                          IconButton(icon: Image(image: AssetImage('assets/images/deleteInputNum.png'),),
-                            padding: EdgeInsets.zero,
-                            highlightColor: Colors.red,
-                            onPressed: () {
-                              print("a");
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-              ),
-
-            ),
+            //アプリタイトル
             Align(
-              alignment: Alignment(0.3,-1 + size.height / 8000),
-              child: SizedBox(height: size.height / 45,
-                  child: Image(image: AssetImage('assets/images/appTitle.png'))
-              )
+                alignment: Alignment(0.3,-1 + size.height / 8000),
+                child: SizedBox(height: size.height / 45,
+                    child: Image(image: AssetImage('assets/images/appTitle.png'))
+                )
             ),
-            //Alignじゃなくこれ使ったらうまく行った。なんでだっけ
+
+            //Body
             Positioned(
               top: size.height / 5,
               width: size.width,
 
               child: Column(
-              children: [
-                SizedBox(
-                  height: size.height / 15,
-                  child:
-                  ElevatedButton(onPressed: (){}, child: Image(image: AssetImage('assets/images/generateRogo.png'), ),
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.transparent,
-                      elevation: 0,
-                      onPrimary: Colors.blue,
-                    ),
-                  )
-                ),
-                SizedBox(height: size.height / 50,),
-                
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
 
-                  children: [
-                    Opacity(opacity: 0, child:
-                      Text("123456789..."),),
-                    Spacer(),
-                    Text("12345", style: TextStyle(fontSize: size.height / 20,),),
-                    Container(
-                       height: size.height / 35,
-                      child: Text("123456789...", style: TextStyle(fontSize: size.height / 60,),),
-                    ),
-                    Spacer(),
+                  //ロゴ生成ボタン
+                  GenerateRogoBtn(size: size, controller: controller),
 
-                  ],
-                ),
-                SizedBox(height: size.height / 80,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  SizedBox(height: size.height / 50,),
 
-                  children: [
-                    rangeArrowBtn(imagePath: 'assets/images/arrowLeft.png',size: size,
-                      decideRangeFunc: () {},),
-                    SizedBox(width: size.width / 10,),
+                  //選択された数字
+                  SelectedNumbers(size: size, mainNumber: controller.mainNumber, subNumber: controller.subNumber,),
 
-                    rangeArrowBtn(imagePath: 'assets/images/arrowRight.png',size: size,
-                    decideRangeFunc: () {},)
-                  ],
-                ),
+                  SizedBox(height: size.height / 80,),
 
-                SizedBox(
-                  height: size.height / 30,
-                ),
+                  //サーチする桁数を決めるボタン
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
 
-                SizedBox(
-                  height: size.height / 4,
-                  width:  size.width - 50,
-                  child:
+                    children: [
+                      rangeArrowBtn(imagePath: 'assets/images/arrowLeft.png',size: size,
+                        decideRangeFunc: () {},),
+                      SizedBox(width: size.width / 10,),
+
+                      rangeArrowBtn(imagePath: 'assets/images/arrowRight.png',size: size,
+                        decideRangeFunc: () {},)
+                    ],
+                  ),
+
+                  SizedBox(
+                    height: size.height / 30,
+                  ),
+
+                  //リスト
+                  SizedBox(
+                      height: size.height / 4,
+                      width:  size.width - 50,
+                      child:
+
                       Stack(
                         children: [
-                          // Image.asset('assets/images/listBackground.png', fit: ,),
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Color.fromARGB(241, 241, 241, 241)),
-                                borderRadius: BorderRadius.circular(20),
-                                color: Color.fromARGB(251, 251, 251, 251),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Color.fromARGB(222, 222, 222, 222), //色
-                                    spreadRadius: 0,
-                                    blurRadius: 2,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
 
-                              ),
-                            ),
+                          //背景
+                          const ListBackground(),
 
-                          ListView.builder(
-                            padding: EdgeInsets.all(size.height / 50),
-                          itemBuilder: (context,index) {
-                            return Container(
-                              height: size.height / 20,
-                              decoration: BoxDecoration(
-                                border: Border(
+                          //ListView
+                          WordListView(size: size, items: items),
 
-                                  bottom: BorderSide(color: Color.fromARGB(217, 217, 217, 217)),
-                                )
-                              ),
-                                        child: ListTile(
-                                          //下すぎたから空文字で微調整。多分良くない。
-                                          subtitle: Text(""),
-
-                                          title:
-                                          Center(
-
-                                            child:
-                                            Text('${items[index]}',
-                                            style: TextStyle(fontSize: size.height / 35),),
-                                          ),
-                                          onTap: (){print("a");},
-                                        ),
-                            );
-                          }
-                          ),
+                          //鉛筆ボタン
                           Align(alignment: Alignment(1,0.9),
                               child:
                               IconButton(icon:
-                                  Icon(Icons.edit, size: size.height/20,
+                              Icon(Icons.edit, size: size.height/20,
 
-                                    color: Color.fromARGB(450,19, 117, 45)),
+                                  color: Color.fromARGB(450,19, 117, 45)),
                                 onPressed: () {print("b");},
                               )
                           ),
 
                         ],
                       )
-                ),
+                  ),
 
-              ],
+                ],
               ),
 
             ),
 
-            Align(alignment: Alignment(1,1),
-                child:
-                    Stack(
-                      children: [
+            //Footer
+            Align(alignment: const Alignment(1,1),
+              child:
+              Stack(
+                children: [
 
-                        Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.zero,
-                              height: size.height / 5,
-                              decoration: const BoxDecoration(
-                                color: Color.fromARGB(217, 217, 217, 217),
+                  Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      //フレーム
+                      Container(
+                        padding: EdgeInsets.zero,
+                        height: size.height / 5,
+                        decoration: const BoxDecoration(
+                            color: Color.fromARGB(217, 217, 217, 217),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30),
+                            )
+                        ),
+                      ),
+                      //中身
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            height: size.height / 5.8,
+                            width: size.width - 20,
+                            decoration: const BoxDecoration(
+                                color: Color.fromARGB(249, 249, 249, 249),
                                 borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(30),
                                   topRight: Radius.circular(30),
+                                  bottomLeft: Radius.circular(10),
+                                  bottomRight: Radius.circular(10),
                                 )
-                              ),
                             ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                            child: Stack(
                               children: [
-                                Container(
-                                  height: size.height / 5.8,
-                                  width: size.width - 20,
-                                  decoration: const BoxDecoration(
-                                    color: Color.fromARGB(249, 249, 249, 249),
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(30),
-                                        topRight: Radius.circular(30),
-                                        bottomLeft: Radius.circular(10),
-                                        bottomRight: Radius.circular(10),
-                                      )
+
+                                //copyButton
+                                Align(alignment: Alignment(1,-1),
+                                  child: FooterIconBtn(size: size,imagePath: 'assets/images/copy.png',
+                                    onPressd: (){
+                                      print("copy");
+                                    },
+                                  ),),
+
+                                //deleteButtonn
+                                Align(alignment: Alignment(1,1),
+                                  child: FooterIconBtn(size: size, imagePath: 'assets/images/deleteSelectWord.png',
+                                    onPressd: (){
+                                      print('delete');
+                                    },),
+                                ),
+
+                                //expandButton
+                                Align(
+                                  alignment: Alignment(0,-1),
+                                  child: IconButton(icon:
+                                  SizedBox(height: 3,
+                                    child:
+                                    Image.asset('assets/images/expandBtn.png', ),
                                   ),
-                                  child: Stack(
-                                    children: [
-                                      Align(alignment: Alignment(1,-1),
-                                      child: IconButton(icon: Image.asset('assets/images/copy.png',
-                                      height: size.height / 30,),
-                                        onPressed: () {print("sss");},
+                                    onPressed: () {print("expand");},
 
-                                      ),),
-                                      //deleteButtonn
-                                      Align(alignment: Alignment(1,1),
-                                        child: IconButton(icon: Image.asset('assets/images/deleteSelectWord.png',
-                                          height: size.height / 30,),
-                                          onPressed: () {print("sss");},
-
-                                        ),),
-                                      //expandButton
-                                      Align(
-                                        alignment: Alignment(0,-1),
-                                        child:
-                                            IconButton(icon:
-                                                SizedBox(height: 3,
-                                                child:
-                                                Image.asset('assets/images/expandBtn.png', ),
-                                                ),
-                                              onPressed: () {print("sss");},
-
-                                            ),
-                                            ),
-                                      Align(
-                                          alignment: Alignment(0,1),
-                                          child: Container(
-                                            height: size.height / 8 ,
-                                            width: size.width  - 110,
-                                            child:
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Text("ワタシ "),
-                                                Text("ハ "),
-                                                Text("ウチュウ "),
-                                                Text("ジン "),
-
-                                              ],
-                                            ),
-                                          )
-                                      ),
-                                    ],
                                   ),
                                 ),
-                                SizedBox(height: size.height / 100,),
+
+                                //選択されたワード
+                                Align(
+                                    alignment: Alignment(0,1),
+                                    child: Container(
+                                      height: size.height / 8 ,
+                                      width: size.width  - 110,
+                                      child:
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          //仮置き
+                                          Text("ワタシ "),
+                                          Text("ハ "),
+                                          Text("ウチュウ "),
+                                          Text("a"),
+
+                                        ],
+                                      ),
+                                    )
+                                ),
                               ],
                             ),
-                          ],
-                        )
-                      ],
+                          ),
+                          SizedBox(height: size.height / 100,),
+                        ],
+                      ),
+                    ],
+                  )
+                ],
 
-                    ),
+              ),
             ),
           ],
+        )
+    );
+
+  }
+  SizedBox generateBtn(Size size ) {
+    return SizedBox(
+        height: size.height / 15,
+        child:
+        ElevatedButton(child: Image(image: AssetImage('assets/images/generateRogo.png'), ),
+          style: ElevatedButton.styleFrom(
+            primary: Colors.transparent,
+            elevation: 0,
+            onPrimary: Colors.blue,
+          ),
+          onPressed: (){
+            // controller.testFunc();
+          },
+        )
+    );
+  }
+}
+
+class GenerateRogoBtn extends StatelessWidget {
+  const GenerateRogoBtn({
+    Key? key,
+    required this.size,
+    required this.controller,
+  }) : super(key: key);
+
+  final Size size;
+  final Controller controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+        height: size.height / 15,
+        child:
+        ElevatedButton(child: Image(image: AssetImage('assets/images/generateRogo.png'), ),
+          style: ElevatedButton.styleFrom(
+            primary: Colors.transparent,
+            elevation: 0,
+            onPrimary: Colors.blue,
+          ),
+          onPressed: (){
+            controller.generateRogo();
+          },
+        )
+    );
+  }
+}
+
+class SelectedNumbers extends StatelessWidget {
+  const SelectedNumbers({
+    Key? key,
+    required this.size,
+    required this.mainNumber,
+    required this.subNumber,
+  }) : super(key: key);
+
+  final Size size;
+  final String mainNumber;
+  final String subNumber;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+
+      children: [
+
+        Opacity(opacity: 0, child:
+        Text(subNumber),),
+        Spacer(),
+
+        Text(mainNumber, style: TextStyle(fontSize: size.height / 20,),),
+        Container(
+           height: size.height / 35,
+          child: Text(subNumber, style: TextStyle(fontSize: size.height / 60,),),
+        ),
+
+        Spacer(),
+
+      ],
+    );
+  }
+}
+
+class HeaderBackground extends StatelessWidget {
+  const HeaderBackground({
+    Key? key,
+    required this.size,
+    required this.inputNumberController,
+  }) : super(key: key);
+
+  final Size size;
+  final TextEditingController inputNumberController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+
+      decoration: const BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey, //色
+            spreadRadius: 2,
+            blurRadius: 1,
+            offset: Offset(0, 0),
+          ),
+        ],
+        color: Color.fromARGB(1000, 217, 217, 217),
+      ),
+      width: size.width,
+      height: size.height / 6,
+      child:
+      InputNumberBox(size: size, inputNumberController: inputNumberController),
+
+    );
+  }
+}
+
+class FooterIconBtn extends StatelessWidget {
+  const FooterIconBtn({
+    Key? key,
+    required this.size,
+    required this.onPressd,
+    required this.imagePath,
+  }) : super(key: key);
+
+  final Size size;
+  final String imagePath;
+  final VoidCallback onPressd;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(icon: Image.asset(imagePath,
+    height: size.height / 30,),
+      onPressed: onPressd,
+
+    );
+  }
+}
+
+class WordListView extends StatelessWidget {
+  const WordListView({
+    Key? key,
+    required this.size,
+    required this.items,
+  }) : super(key: key);
+
+  final Size size;
+  final List<String> items;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: EdgeInsets.all(size.height / 50),
+    itemBuilder: (context,index) {
+      return Container(
+        height: size.height / 20,
+        decoration: BoxDecoration(
+          border: Border(
+
+            bottom: BorderSide(color: Color.fromARGB(217, 217, 217, 217)),
+          )
+        ),
+                  child: ListTile(
+                    //下すぎたから空文字で微調整。多分良くない。
+                    subtitle: Text(""),
+
+                    title:
+                    Center(
+
+                      child:
+                      Text('${items[index]}',
+                      style: TextStyle(fontSize: size.height / 35),),
+                    ),
+                    onTap: (){print("a");},
+                  ),
+      );
+    }
+    );
+  }
+}
+
+class ListBackground extends StatelessWidget {
+  const ListBackground({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Color.fromARGB(241, 241, 241, 241)),
+        borderRadius: BorderRadius.circular(20),
+        color: Color.fromARGB(251, 251, 251, 251),
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromARGB(222, 222, 222, 222), //色
+            spreadRadius: 0,
+            blurRadius: 2,
+            offset: Offset(0, 4),
+          ),
+        ],
+
+      ),
+    );
+  }
+}
+
+class InputNumberBox extends StatelessWidget {
+  const InputNumberBox({
+    Key? key,
+    required this.size,
+    required this.inputNumberController,
+  }) : super(key: key);
+
+  final Size size;
+  final TextEditingController inputNumberController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+        alignment: Alignment(0 ,0.85),
+        child: Container(
+          width: size.width - 20,
+          height: size.height / 16,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white
+
+          ),
+          child: Row(
+            children: [
+
+              Container(
+                width:  size.width - 70,
+                child: TextField(
+                  controller: inputNumberController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: "　　数字を入力してください",
+
+
+                  ),
+                ),
+              ),
+              //deleteButton
+              SizedBox(
+                height: size.height / 50,
+                child:
+                IconButton(icon: Image(image: AssetImage('assets/images/deleteInputNum.png'),),
+                  padding: EdgeInsets.zero,
+                  highlightColor: Colors.red,
+                  onPressed: () {
+                    inputNumberController.clear();
+                  },
+                ),
+              ),
+            ],
+          ),
         )
     );
   }
