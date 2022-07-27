@@ -64,6 +64,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 void main() => runApp(MyApp());
 
@@ -101,6 +102,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
     final Size size = MediaQuery.of(context).size;
 
+    final items = List<String>.generate(10000, (i) => "Item $i");
     return Container(
         child: Stack(
           children: [
@@ -125,6 +127,48 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               ),
               width: size.width,
               height: size.height / 6,
+              child:
+              Align(
+                  alignment: Alignment(0 ,0.85),
+                  child: Container(
+                    width: size.width - 20,
+                    height: size.height / 16,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white
+
+                    ),
+                    child: Row(
+                      children: [
+
+                        Container(
+                          width:  size.width - 70,
+                          child: TextField(
+                            textAlign: TextAlign.center,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "　　数字を入力してください",
+
+
+                            ),
+                          ),
+                        ),
+                        //deleteButton
+                        SizedBox(
+                          height: size.height / 50,
+                          child:
+                          IconButton(icon: Image(image: AssetImage('assets/images/deleteInputNum.png'),),
+                            padding: EdgeInsets.zero,
+                            highlightColor: Colors.red,
+                            onPressed: () {
+                              print("a");
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+              ),
 
             ),
             Align(
@@ -133,46 +177,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   child: Image(image: AssetImage('assets/images/appTitle.png'))
               )
             ),
-            Align(
-                alignment: Alignment(0,-1 + size.height / 4200),
-                child: Container(
-                  width: size.width - 20,
-                  height: size.height / 16,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white
-
-                  ),
-                  child: Row(
-                    children: [
-
-                      Container(
-                        width:  size.width - 70,
-                        child: TextField(
-                          textAlign: TextAlign.center,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "　　数字を入力してください",
-
-
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: size.height / 30,
-                        child:
-                        IconButton(icon: Image(image: AssetImage('assets/images/deleteInputNum.png'),),
-                          padding: EdgeInsets.zero,
-                          highlightColor: Colors.red,
-                          onPressed: () {
-                            print("a");
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-            ),
+            //Alignじゃなくこれ使ったらうまく行った。なんでだっけ
             Positioned(
               top: size.height / 5,
               width: size.width,
@@ -222,29 +227,172 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   ],
                 ),
 
-                ListView.builder(itemCount: 3,
-                    itemBuilder: (context, index){
-                  return Card(
-                    child: ListTile(
-                      leading: IconButton(icon: Icon(Icons.account_circle),
-                        onPressed: () {
-                        showDialog(context: context, builder: (context) {
-                          return AlertDialog((
-                          context: Text("Hello leading Icon"),
-                          ))
-                        })
-                        },
+                SizedBox(
+                  height: size.height / 30,
+                ),
+
+                SizedBox(
+                  height: size.height / 4,
+                  width:  size.width - 50,
+                  child:
+                      Stack(
+                        children: [
+                          // Image.asset('assets/images/listBackground.png', fit: ,),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Color.fromARGB(241, 241, 241, 241)),
+                                borderRadius: BorderRadius.circular(20),
+                                color: Color.fromARGB(251, 251, 251, 251),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color.fromARGB(222, 222, 222, 222), //色
+                                    spreadRadius: 0,
+                                    blurRadius: 2,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+
+                              ),
+                            ),
+
+                          ListView.builder(
+                            padding: EdgeInsets.all(size.height / 50),
+                          itemBuilder: (context,index) {
+                            return Container(
+                              height: size.height / 20,
+                              decoration: BoxDecoration(
+                                border: Border(
+
+                                  bottom: BorderSide(color: Color.fromARGB(217, 217, 217, 217)),
+                                )
+                              ),
+                                        child: ListTile(
+                                          //下すぎたから空文字で微調整。多分良くない。
+                                          subtitle: Text(""),
+
+                                          title:
+                                          Center(
+
+                                            child:
+                                            Text('${items[index]}',
+                                            style: TextStyle(fontSize: size.height / 35),),
+                                          ),
+                                          onTap: (){print("a");},
+                                        ),
+                            );
+                          }
+                          ),
+                          Align(alignment: Alignment(1,0.9),
+                              child:
+                              IconButton(icon:
+                                  Icon(Icons.edit, size: size.height/20,
+
+                                    color: Color.fromARGB(450,19, 117, 45)),
+                                onPressed: () {print("b");},
+                              )
+                          ),
+
+                        ],
                       )
-                    ),
-                  );
-
-                })
-
-
+                ),
 
               ],
               ),
-            )
+
+            ),
+
+            Align(alignment: Alignment(1,1),
+                child:
+                    Stack(
+                      children: [
+
+                        Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.zero,
+                              height: size.height / 5,
+                              decoration: const BoxDecoration(
+                                color: Color.fromARGB(217, 217, 217, 217),
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(30),
+                                  topRight: Radius.circular(30),
+                                )
+                              ),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Container(
+                                  height: size.height / 5.8,
+                                  width: size.width - 20,
+                                  decoration: const BoxDecoration(
+                                    color: Color.fromARGB(249, 249, 249, 249),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(30),
+                                        topRight: Radius.circular(30),
+                                        bottomLeft: Radius.circular(10),
+                                        bottomRight: Radius.circular(10),
+                                      )
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      Align(alignment: Alignment(1,-1),
+                                      child: IconButton(icon: Image.asset('assets/images/copy.png',
+                                      height: size.height / 30,),
+                                        onPressed: () {print("sss");},
+
+                                      ),),
+                                      //deleteButtonn
+                                      Align(alignment: Alignment(1,1),
+                                        child: IconButton(icon: Image.asset('assets/images/deleteSelectWord.png',
+                                          height: size.height / 30,),
+                                          onPressed: () {print("sss");},
+
+                                        ),),
+                                      //expandButton
+                                      Align(
+                                        alignment: Alignment(0,-1),
+                                        child:
+                                            IconButton(icon:
+                                                SizedBox(height: 3,
+                                                child:
+                                                Image.asset('assets/images/expandBtn.png', ),
+                                                ),
+                                              onPressed: () {print("sss");},
+
+                                            ),
+                                            ),
+                                      Align(
+                                          alignment: Alignment(0,1),
+                                          child: Container(
+                                            height: size.height / 8 ,
+                                            width: size.width  - 110,
+                                            child:
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Text("ワタシ "),
+                                                Text("ハ "),
+                                                Text("ウチュウ "),
+                                                Text("ジン "),
+
+                                              ],
+                                            ),
+                                          )
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: size.height / 100,),
+                              ],
+                            ),
+                          ],
+                        )
+                      ],
+
+                    ),
+            ),
           ],
         )
     );
