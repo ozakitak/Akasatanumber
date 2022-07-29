@@ -2,6 +2,7 @@
 import 'package:akasatanumber/readTxtFile.dart';
 import 'package:akasatanumber/searchWord.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
@@ -258,10 +259,12 @@ class AllWidget extends StatelessWidget {
                                     child: Container(
                                       height: size.height / 8 ,
                                       width: size.width  - 110,
-                                      child:
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: viewModel.rogoList,
+                                      child:SingleChildScrollView(
+                                        
+                                        child:
+                                        Wrap(
+                                          children: viewModel.rogoList,
+                                        ),
                                       ),
                                     )
                                 ),
@@ -444,13 +447,13 @@ class WordListView extends StatelessWidget {
                     ),
                     onTap: (){
                       viewModel.selectWord(items[index]);
-
                     },
                   ),
       );
     }
     );
   }
+
 }
 
 class ListBackground extends StatelessWidget {

@@ -33,9 +33,16 @@ class ViewModel extends ChangeNotifier{
     notifyListeners();
   }
   void generateRogo() {
+    clearSelectedRogo();
+
     inputNumber = inputNumberController.text;
     showMatchWord();
   }
+
+  void clearSelectedRogo() {
+    rogoList.clear();
+  }
+
   void showMatchWord(){
     SearchMatchWord model = SearchMatchWord();
 

@@ -21,18 +21,22 @@ class SelectedRogoButton extends StatelessWidget {
     final Size size = MediaQuery.of(context).size;
 
 
-    return SizedBox(
-        height: size.height / 15,
-        child:
-        ElevatedButton(child: Text(selectedRogo),
-          style: ElevatedButton.styleFrom(
-            primary: Colors.transparent,
-            elevation: 0,
-            onPrimary: Colors.blue,
-          ),
-          onPressed: (){
-          },
-        )
+    // return SizedBox(
+    //     height: size.height / 100,
+    //     width: size.width / 7,
+    //     child:
+    // );
+    return ElevatedButton(child: Text(selectedRogo,
+      style: TextStyle(fontSize: size.height / 40),
+    ),
+      style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.zero,
+        primary: Colors.transparent,
+        elevation: 0,
+        onPrimary: Colors.blue,
+      ),
+      onPressed: (){
+      },
     );
   }
 }
