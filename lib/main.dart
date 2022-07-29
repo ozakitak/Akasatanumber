@@ -450,8 +450,16 @@ class WordListView extends StatelessWidget {
                       style: TextStyle(fontSize: size.height / 35),),
                     ),
                     onTap: (){
-                      viewModel.selectWord(items[index]);
-                      viewModel.add();
+                      //編集モードの場合
+                      if(viewModel.isChangingSelectedWord) {
+                        viewModel.changeSelectedRogo(items[index]);
+                        viewModel.isChangingSelectedWord = false;
+
+                      }else{
+                        viewModel.selectWord(items[index], viewModel.mainNumbers);
+                        //スクロールを最下部へ
+                        viewModel.add();
+                      }
                     },
                   ),
       );

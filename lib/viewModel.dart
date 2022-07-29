@@ -25,13 +25,21 @@ class ViewModel extends ChangeNotifier{
   List<String> wordList = ["aaa"];
   List<String> matchWordList = [];
   List<Widget> rogoList = [] ;
+  SelectedRogoButton? rogoButton;
+
+  bool isChangingSelectedWord = false;
+
 
   final ScrollController scrollController = ScrollController();
 
 
-  void addSelectedRogo({required selectedRogo}){
+  void changeSelectedRogo(String rogo) {
+    rogoButton!.selectedRogo = rogo;
+    notifyListeners();
+  }
+  void addSelectedRogo(String selectedRogo, String rogoNumber){
 
-    rogoList.add(SelectedRogoButton(selectedRogo: selectedRogo));
+    rogoList.add(SelectedRogoButton(selectedRogo: selectedRogo, rogoNumber: rogoNumber, viewModel: this));
 
     notifyListeners();
   }
@@ -82,7 +90,7 @@ class ViewModel extends ChangeNotifier{
   void showMatchWord(){
     SearchMatchWord model = SearchMatchWord();
 
-    _searchMatchWord(model: model);
+    searchMatchWord(model: model);
 
     mainNumbers = inputNumber.substring(0, model.getMaxMatchCount());
     subNumbers = inputNumber.substring(model.getMaxMatchCount());
@@ -93,14 +101,14 @@ class ViewModel extends ChangeNotifier{
 
   }
 
-  void selectWord(String selectedWord) {
-    //FIXME limittedNumberと加工なしのRestNumberを用意する
+  //リスト要素クリック時
+  void selectWord(String selectedWord, String rogoNumber) {
     inputNumber = subNumbers.toString();
     matchWordList = [];
     showMatchWord();
     print(limitedSubNumbers);
 
-    addSelectedRogo(selectedRogo: selectedWord);
+    addSelectedRogo(selectedWord, rogoNumber);
 
     notifyListeners();
   }
@@ -117,13 +125,24 @@ class ViewModel extends ChangeNotifier{
   }
 
 
-  void _searchMatchWord({  SearchMatchWord? model }) {
+  void searchMatchWord({  SearchMatchWord? model }) {
     SearchMatchWord search = model ?? SearchMatchWord();
 
    if(inputNumber.isEmpty){ return; }
 
    matchWordList = search.searchMatchword(wordList, inputNumber, true);
    notifyListeners();
+  }
+
+  //編集モードでもう一度探し直す
+  void researchMatchWord(String rogoNumber) {
+    SearchMatchWord model = SearchMatchWord();
+
+    if(rogoNumber.isEmpty) { return; }
+
+    matchWordList = model.searchMatchword(wordList, rogoNumber, false);
+
+    notifyListeners();
   }
 
 
