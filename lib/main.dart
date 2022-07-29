@@ -1,74 +1,12 @@
-//
-// import 'package:flutter/material.dart';
-//
-// void main() => runApp(MyApp());
-//
-// class MyApp extends StatelessWidget {
-//   const MyApp({Key? key}) : super(key: key);
-//
-//   static const String _title = 'Sample App';
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return const MaterialApp(
-//       title: _title,
-//       home: Scaffold(
-//         body: MyStatefulWidget(),
-//       ),
-//     );
-//   }
-// }
-//
-// class MyStatefulWidget extends StatefulWidget {
-//   const MyStatefulWidget({Key? key}) : super(key: key);
-//
-//   @override
-//   State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
-// }
-//
-// class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-//   TextEditingController nameController = TextEditingController();
-//   TextEditingController mailController = TextEditingController();
-//   TextEditingController passwordController = TextEditingController();
-//   TextEditingController comPassController = TextEditingController();
-//
-//   @override
-//   Widget build(BuildContext context) {
-//
-//     final Size size = MediaQuery.of(context).size;
-//
-//     return Padding(padding: EdgeInsets.all(30),
-//         child: Column(
-//       children: [
-//         Stack(
-//           children: [
-//             Image(image: AssetImage('assets/images/appBar.png')),
-//             Align(alignment: Alignment(0,0.9),
-//                 child: SizedBox(
-//                     height: size.height / 40,
-//                     child: Image(image: AssetImage('assets/images/appTitle.png'),)
-//                 )
-//             )
-//           ],
-//         )
-//       ],
-//     )
-//     );
-//   }
-// }
-//
-//
-//
 
-
-
-
+import 'package:akasatanumber/readTxtFile.dart';
+import 'package:akasatanumber/searchWord.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import 'controller.dart';
+import 'viewModel.dart';
 
 void main() => runApp(MyApp());
 
@@ -76,6 +14,7 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   static const String _title = 'Sample App';
+
 
   @override
   Widget build(BuildContext context) {
@@ -97,18 +36,27 @@ class MyStatefulWidget extends StatefulWidget {
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
+  @override
+  void initState(){
+    //アプリ起動時に一度だけ実行される
+    print("initState");
+    
+    
+    ReadTxtFile read = ReadTxtFile();
+    read.getWordList().then((value) {
+      wordList = value;
+      print(wordList);
+    });
+  }
 
-
-
+  List<String> wordList = [];
 
   @override
   Widget build(BuildContext context) {
 
 
-    //仮置き
-    final items = List<String>.generate(10000, (i) => "Item $i");
-    return ChangeNotifierProvider<Controller>(
-        create: (context) => Controller(),
+    return ChangeNotifierProvider<ViewModel>(
+        create: (context) => ViewModel(),
       child:
       AllWidget(),
     );
@@ -117,22 +65,28 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 }
 
 class AllWidget extends StatelessWidget {
-  const AllWidget({
+   AllWidget({
     Key? key,
   }) : super(key: key);
+  String textContent = "";
 
-  @override
+
+   @override
   Widget build(BuildContext context) {
+     final ViewModel viewModel = Provider.of<ViewModel>(context);
 
     final Size size = MediaQuery.of(context).size;
 
-    final items = List<String>.generate(10000, (i) => "Item $i");
 
-    final Controller controller = Provider.of<Controller>(context);
+
+
 
     String inputNumber = "";
     String mainNumber = "";
     String subNumber = "";
+
+    viewModel.loadWordList();
+    
 
     return Container(
         child: Stack(
@@ -145,7 +99,7 @@ class AllWidget extends StatelessWidget {
             ),
 
             //Header
-            HeaderBackground(size: size, inputNumberController: controller.inputNumberController),
+            HeaderBackground(size: size, inputNumberController: viewModel.inputNumberController),
 
             //アプリタイトル
             Align(
@@ -164,12 +118,12 @@ class AllWidget extends StatelessWidget {
                 children: [
 
                   //ロゴ生成ボタン
-                  GenerateRogoBtn(size: size, controller: controller),
+                  GenerateRogoBtn(size: size, viewModel: viewModel),
 
                   SizedBox(height: size.height / 50,),
 
                   //選択された数字
-                  SelectedNumbers(size: size, mainNumber: controller.mainNumber, subNumber: controller.subNumber,),
+                  SelectedNumbers(size: size, mainNumber: viewModel.mainNumber, subNumber: viewModel.subNumber,),
 
                   SizedBox(height: size.height / 80,),
 
@@ -204,7 +158,7 @@ class AllWidget extends StatelessWidget {
                           const ListBackground(),
 
                           //ListView
-                          WordListView(size: size, items: items),
+                          WordListView(size: size, items: viewModel.matchWordList),
 
                           //鉛筆ボタン
                           Align(alignment: Alignment(1,0.9),
@@ -332,33 +286,17 @@ class AllWidget extends StatelessWidget {
     );
 
   }
-  SizedBox generateBtn(Size size ) {
-    return SizedBox(
-        height: size.height / 15,
-        child:
-        ElevatedButton(child: Image(image: AssetImage('assets/images/generateRogo.png'), ),
-          style: ElevatedButton.styleFrom(
-            primary: Colors.transparent,
-            elevation: 0,
-            onPrimary: Colors.blue,
-          ),
-          onPressed: (){
-            // controller.testFunc();
-          },
-        )
-    );
-  }
 }
 
 class GenerateRogoBtn extends StatelessWidget {
   const GenerateRogoBtn({
     Key? key,
     required this.size,
-    required this.controller,
+    required this.viewModel,
   }) : super(key: key);
 
   final Size size;
-  final Controller controller;
+  final ViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -372,7 +310,8 @@ class GenerateRogoBtn extends StatelessWidget {
             onPrimary: Colors.blue,
           ),
           onPressed: (){
-            controller.generateRogo();
+          viewModel.generateRogo();
+          viewModel.searchMatchWord();
           },
         )
     );
@@ -484,6 +423,7 @@ class WordListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      itemCount: items.length,
       padding: EdgeInsets.all(size.height / 50),
     itemBuilder: (context,index) {
       return Container(
