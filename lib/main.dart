@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'viewModel.dart';
 
@@ -14,7 +15,6 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   static const String _title = 'Sample App';
-
 
   @override
   Widget build(BuildContext context) {
@@ -32,25 +32,28 @@ class MyStatefulWidget extends StatefulWidget {
 
   @override
    _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
+
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
+
+
   @override
-  void initState(){
-    //アプリ起動時に一度だけ実行される
-    print("initState");
-    
-    
-    ReadTxtFile read = ReadTxtFile();
-    read.getWordList().then((value) {
-      wordList = value;
-      print(wordList);
+  void initState() {
+    super.initState();
+    Future(() async {
+      final preference = await SharedPreferences.getInstance();
+
+      if(preference.getBool('isStart') ?? true) {
+        ViewModel.setPrefWordList();
+        preference.setBool('isStart', false);
+      } else {
+        print("2回目以降です");
+      }
     });
+
   }
-
-  List<String> wordList = [];
-
   @override
   Widget build(BuildContext context) {
 
@@ -85,7 +88,7 @@ class AllWidget extends StatelessWidget {
     String mainNumber = "";
     String subNumber = "";
 
-    viewModel.loadWordList();
+    viewModel.setWordList();
     
 
     return Container(

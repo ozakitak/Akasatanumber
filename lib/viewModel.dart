@@ -4,6 +4,7 @@ import 'package:akasatanumber/readTxtFile.dart';
 import 'package:akasatanumber/searchWord.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ViewModel extends ChangeNotifier{
 
@@ -13,7 +14,6 @@ class ViewModel extends ChangeNotifier{
   String mainNumber = "";
   String subNumber = "";
 
-  final ReadTxtFile read = ReadTxtFile();
 
   //カタカナ
 
@@ -34,18 +34,26 @@ class ViewModel extends ChangeNotifier{
    if(inputNumber.isEmpty){ return; }
 
    SearchMatchWord model = SearchMatchWord();
+   matchWordList = model.searchMatchword(wordList, inputNumber, true);
    notifyListeners();
   }
 
 
 
-  void loadWordList() {
+  void setWordList() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    wordList = prefs.getStringList('my_word_list') ?? [];
+
+
+  }
+  static void setPrefWordList() async {
+
+    final ReadTxtFile read = ReadTxtFile();
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     read.getWordList().then((value) {
-      wordList = value;
-      print(wordList);
-         });
-
-
+      prefs.setStringList('my_word_list', value );
+    });
   }
   void testFunc() {
     mainNumber = "123456";
