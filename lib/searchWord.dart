@@ -18,11 +18,17 @@ class SearchMatchWord{
   ['ヤ','ユ','ヨ','ャ','ュ','ョ',],
   ['ラ','リ','ル','レ','ロ',],
   ];
+   int _maxMatchCount = 0;
+
+
+   int getMaxMatchCount() {
+    return _maxMatchCount;
+}
 
   List<String> searchMatchword(List<String> wordList, String inputNumbers, bool isRunAgain) {
 
 
-   int maxMatchCount = 0;
+    _maxMatchCount = 0;
    List<String> matchWordList = [];
 
 
@@ -76,9 +82,9 @@ class SearchMatchWord{
 
       }
       //最大マッチ桁を更新
-      if (tempMaxCount > maxMatchCount) {
+      if (tempMaxCount > _maxMatchCount) {
 
-        maxMatchCount = tempMaxCount;
+        _maxMatchCount = tempMaxCount;
 
       }
     }
@@ -87,7 +93,7 @@ class SearchMatchWord{
    if(matchWordList.isEmpty) {
 
      if(isRunAgain) {
-       matchWordList = searchMatchword(wordList,inputNumbers.substring(0, maxMatchCount) , isRunAgain);
+       matchWordList = searchMatchword(wordList,inputNumbers.substring(0, _maxMatchCount) , isRunAgain);
      }
 
    }

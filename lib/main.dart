@@ -161,7 +161,7 @@ class AllWidget extends StatelessWidget {
                           const ListBackground(),
 
                           //ListView
-                          WordListView(size: size, items: viewModel.matchWordList),
+                          WordListView(size: size, items: viewModel.matchWordList, viewModel: viewModel,),
 
                           //鉛筆ボタン
                           Align(alignment: Alignment(1,0.9),
@@ -261,14 +261,7 @@ class AllWidget extends StatelessWidget {
                                       child:
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          //仮置き
-                                          Text("ワタシ "),
-                                          Text("ハ "),
-                                          Text("ウチュウ "),
-                                          Text("a"),
-
-                                        ],
+                                        children: viewModel.rogoList,
                                       ),
                                     )
                                 ),
@@ -314,7 +307,6 @@ class GenerateRogoBtn extends StatelessWidget {
           ),
           onPressed: (){
           viewModel.generateRogo();
-          viewModel.searchMatchWord();
           },
         )
     );
@@ -418,10 +410,12 @@ class WordListView extends StatelessWidget {
     Key? key,
     required this.size,
     required this.items,
+    required this.viewModel,
   }) : super(key: key);
 
   final Size size;
   final List<String> items;
+  final ViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -431,7 +425,7 @@ class WordListView extends StatelessWidget {
     itemBuilder: (context,index) {
       return Container(
         height: size.height / 20,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
 
             bottom: BorderSide(color: Color.fromARGB(217, 217, 217, 217)),
@@ -448,7 +442,10 @@ class WordListView extends StatelessWidget {
                       Text('${items[index]}',
                       style: TextStyle(fontSize: size.height / 35),),
                     ),
-                    onTap: (){print("a");},
+                    onTap: (){
+                      viewModel.selectWord(items[index]);
+
+                    },
                   ),
       );
     }
