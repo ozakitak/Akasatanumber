@@ -8,12 +8,12 @@ class SelectRogo{
   }
 }
 class SelectedRogoButton extends StatelessWidget {
-  const SelectedRogoButton({
+   SelectedRogoButton({
     Key? key,
     required this.selectedRogo,
   }) : super(key: key);
 
-  final String selectedRogo;
+   String selectedRogo;
 
   @override
   Widget build(BuildContext context) {
@@ -21,22 +21,21 @@ class SelectedRogoButton extends StatelessWidget {
     final Size size = MediaQuery.of(context).size;
 
 
-    // return SizedBox(
-    //     height: size.height / 100,
-    //     width: size.width / 7,
-    //     child:
-    // );
     return ElevatedButton(child: Text(selectedRogo,
       style: TextStyle(fontSize: size.height / 40),
     ),
       style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.zero,
+        padding: EdgeInsets.all(1),
         primary: Colors.transparent,
         elevation: 0,
         onPrimary: Colors.blue,
       ),
       onPressed: (){
+      changeRogo();
       },
     );
+  }
+  void changeRogo() {
+    selectedRogo = "";
   }
 }

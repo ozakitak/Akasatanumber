@@ -4,6 +4,7 @@ import 'package:akasatanumber/readTxtFile.dart';
 import 'package:akasatanumber/searchWord.dart';
 import 'package:akasatanumber/selectedRogo.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,9 +13,9 @@ class ViewModel extends ChangeNotifier{
   TextEditingController inputNumberController = TextEditingController();
 
   String inputNumber = "";
-  String mainNumber = "";
-  String subNumber = "";
-  String restNumber = "";
+  String mainNumbers = "";
+  String subNumbers = "";
+  String limitedSubNumbers = "";
 
   String selectedWordsGroup = "";
 
@@ -25,6 +26,8 @@ class ViewModel extends ChangeNotifier{
   List<String> matchWordList = [];
   List<Widget> rogoList = [] ;
 
+  final ScrollController scrollController = ScrollController();
+
 
   void addSelectedRogo({required selectedRogo}){
 
@@ -32,6 +35,39 @@ class ViewModel extends ChangeNotifier{
 
     notifyListeners();
   }
+  void decreaseDigit() {
+    if(mainNumbers.length <= 1) {
+      return;
+    }
+    //メインを一桁減らしてサブに渡す
+    subNumbers =  mainNumbers.substring(mainNumbers.length -1) + subNumbers;
+    mainNumbers = mainNumbers.substring(0, mainNumbers.length - 1);
+    limitedSubNumbers = getLimittedSubNumber(subNumbers);
+
+    SearchMatchWord model = SearchMatchWord();
+    matchWordList = model.searchMatchword(wordList, mainNumbers, false);
+
+    notifyListeners();
+
+  }
+
+  void increaseDigit() {
+    if(mainNumbers.length >= inputNumber.length) {
+      return;
+    }
+
+    mainNumbers = mainNumbers + subNumbers.substring(0,1);
+    subNumbers = subNumbers.substring(1);
+    limitedSubNumbers = getLimittedSubNumber(subNumbers);
+
+    SearchMatchWord model = SearchMatchWord();
+    matchWordList = model.searchMatchword(wordList, mainNumbers, false);
+
+    notifyListeners();
+
+  }
+  
+
   void generateRogo() {
     clearSelectedRogo();
 
@@ -48,9 +84,9 @@ class ViewModel extends ChangeNotifier{
 
     _searchMatchWord(model: model);
 
-    mainNumber = inputNumber.substring(0, model.getMaxMatchCount());
-    restNumber = inputNumber.substring(model.getMaxMatchCount());
-    subNumber = getLimittedSubNumber(restNumber);
+    mainNumbers = inputNumber.substring(0, model.getMaxMatchCount());
+    subNumbers = inputNumber.substring(model.getMaxMatchCount());
+    limitedSubNumbers = getLimittedSubNumber(subNumbers);
 
     notifyListeners();
 
@@ -59,10 +95,10 @@ class ViewModel extends ChangeNotifier{
 
   void selectWord(String selectedWord) {
     //FIXME limittedNumberと加工なしのRestNumberを用意する
-    inputNumber = restNumber.toString();
+    inputNumber = subNumbers.toString();
     matchWordList = [];
     showMatchWord();
-    print(subNumber);
+    print(limitedSubNumbers);
 
     addSelectedRogo(selectedRogo: selectedWord);
 
@@ -108,7 +144,19 @@ class ViewModel extends ChangeNotifier{
     });
   }
   void testFunc() {
-    mainNumber = "123456";
+    mainNumbers = "123456";
+    notifyListeners();
+  }
+
+
+  void add() {
+    SchedulerBinding.instance.addPostFrameCallback((_) => _scrollToEnd());
+  }
+  void _scrollToEnd()  {
+    scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOut);
     notifyListeners();
   }
 }

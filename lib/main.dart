@@ -1,6 +1,4 @@
 
-import 'package:akasatanumber/readTxtFile.dart';
-import 'package:akasatanumber/searchWord.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -72,14 +70,13 @@ class AllWidget extends StatelessWidget {
    AllWidget({
     Key? key,
   }) : super(key: key);
-  String textContent = "";
-
 
    @override
   Widget build(BuildContext context) {
      final ViewModel viewModel = Provider.of<ViewModel>(context);
 
     final Size size = MediaQuery.of(context).size;
+
 
 
 
@@ -127,7 +124,7 @@ class AllWidget extends StatelessWidget {
                   SizedBox(height: size.height / 50,),
 
                   //選択された数字
-                  SelectedNumbers(size: size, mainNumber: viewModel.mainNumber, subNumber: viewModel.subNumber,),
+                  SelectedNumbers(size: size, mainNumber: viewModel.mainNumbers, subNumber: viewModel.limitedSubNumbers,),
 
                   SizedBox(height: size.height / 80,),
 
@@ -137,11 +134,17 @@ class AllWidget extends StatelessWidget {
 
                     children: [
                       rangeArrowBtn(imagePath: 'assets/images/arrowLeft.png',size: size,
-                        decideRangeFunc: () {},),
+                        decideRangeFunc: () {
+                        viewModel.decreaseDigit();
+                        },),
                       SizedBox(width: size.width / 10,),
 
                       rangeArrowBtn(imagePath: 'assets/images/arrowRight.png',size: size,
-                        decideRangeFunc: () {},)
+                        decideRangeFunc:
+                            () {
+                        viewModel.increaseDigit();
+
+                            },)
                     ],
                   ),
 
@@ -260,7 +263,8 @@ class AllWidget extends StatelessWidget {
                                       height: size.height / 8 ,
                                       width: size.width  - 110,
                                       child:SingleChildScrollView(
-                                        
+                                        controller: viewModel.scrollController,
+
                                         child:
                                         Wrap(
                                           children: viewModel.rogoList,
@@ -447,6 +451,7 @@ class WordListView extends StatelessWidget {
                     ),
                     onTap: (){
                       viewModel.selectWord(items[index]);
+                      viewModel.add();
                     },
                   ),
       );
