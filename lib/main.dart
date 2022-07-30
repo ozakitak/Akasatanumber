@@ -1,4 +1,5 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -232,7 +233,7 @@ class AllWidget extends StatelessWidget {
                                 Align(alignment: Alignment(1,-1),
                                   child: FooterIconBtn(size: size,imagePath: 'assets/images/copy.png',
                                     onPressd: (){
-                                      print("copy");
+                                    viewModel.copyClickListener();
                                     },
                                   ),),
 
@@ -240,28 +241,17 @@ class AllWidget extends StatelessWidget {
                                 Align(alignment: Alignment(1,1),
                                   child: FooterIconBtn(size: size, imagePath: 'assets/images/deleteSelectWord.png',
                                     onPressd: (){
-                                    viewModel.deleteGoroBtn();
+                                    viewModel.buildDeleteDialog(context);
                                     },),
                                 ),
 
                                 //expandButton
-                                Align(
-                                  alignment: Alignment(0,-1),
-                                  child: IconButton(icon:
-                                  SizedBox(height: 3,
-                                    child:
-                                    Image.asset('assets/images/expandBtn.png', ),
-                                  ),
-                                    onPressed: () {print("expand");},
-
-                                  ),
-                                ),
 
                                 //選択されたワード
                                 Align(
                                     alignment: Alignment(0,1),
                                     child: Container(
-                                      height: size.height / 8 ,
+                                      height: size.height / 7 ,
                                       width: size.width  - 110,
                                       child:SingleChildScrollView(
                                         controller: viewModel.scrollController,
@@ -279,6 +269,7 @@ class AllWidget extends StatelessWidget {
                           SizedBox(height: size.height / 100,),
                         ],
                       ),
+
                     ],
                   )
                 ],
@@ -290,6 +281,7 @@ class AllWidget extends StatelessWidget {
     );
 
   }
+
 }
 
 class GenerateRogoBtn extends StatelessWidget {

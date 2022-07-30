@@ -1,5 +1,7 @@
 import 'dart:ffi';
 
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:akasatanumber/readTxtFile.dart';
 import 'package:akasatanumber/searchWord.dart';
 import 'package:akasatanumber/selectedRogo.dart';
@@ -92,9 +94,8 @@ class ViewModel extends ChangeNotifier{
   //クリックリスナー
   ////////////////////////////////////////////////////////////////
   void deleteGoroBtn() {
-    if(isChangngRogo) {
-      return;
-    }
+    if(selectedRogoList.isEmpty) {return;}
+    if(isChangngRogo) { return; }
     //最後の要素が持つ数字を代入
     SelectedRogoButton temp = selectedRogoList[selectedRogoList.length - 1] as SelectedRogoButton;
     subNumbers = mainNumbers + subNumbers;
@@ -108,11 +109,12 @@ class ViewModel extends ChangeNotifier{
     notifyListeners();
   }
   void decreaseDigit() {
-    if(isChangngRogo) {
+    if(isChangngRogo || mainNumbers.length <= 1) {
+      _showToast("桁数を変えることはできません。");
+      notifyListeners();
+
       return;
-    }
-    if(mainNumbers.length <= 1) {
-      return;
+
     }
     //メインを一桁減らしてサブに渡す
     subNumbers =  mainNumbers.substring(mainNumbers.length -1) + subNumbers;
@@ -126,11 +128,10 @@ class ViewModel extends ChangeNotifier{
 
   }
 
+
   void increaseDigit() {
-    if(isChangngRogo) {
-      return;
-    }
-    if(mainNumbers.length >= inputNumber.length) {
+    if(isChangngRogo || mainNumbers.length >= inputNumber.length) {
+      _showToast("桁数を変えることはできません。");
       return;
     }
 
@@ -144,13 +145,39 @@ class ViewModel extends ChangeNotifier{
     notifyListeners();
 
   }
-  
+
+  Future<bool?> _showToast( String massage) {
+    return Fluttertoast.showToast(
+      msg: massage,
+      fontSize: 16.0,
+      textColor: Colors.black,
+      backgroundColor: Colors.black12,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 2,
+    );
+  }
+
   void generateRogo() {
     resetAll();
     matchRogoList = [];
 
     inputNumber = inputNumberController.text;
     _showMatchWord();
+  }
+
+  void copyClickListener() async {
+
+    if(selectedRogoList.isEmpty) { return; }
+
+    String copyContents = "";
+    for(Widget item in selectedRogoList){
+      SelectedRogoButton goro = item as SelectedRogoButton;
+      copyContents += "${goro.selectedRogo} ";
+    }
+      final data = ClipboardData(text: copyContents);
+      await Clipboard.setData(data);
+      print("コピーしたよ");
+      _showToast("コピーしました");
   }
 
   void listTileClickListener(String items){
@@ -235,7 +262,41 @@ class ViewModel extends ChangeNotifier{
     wordList = prefs.getStringList('my_word_list') ?? [];
   }
 
+  //Dialog
+  ////////////////////////////////////////////////////////////////
+  Future<void> buildDeleteDialog(BuildContext context) {
+    if(selectedRogoList.isEmpty) {return Future((){});}
+    if(isChangngRogo) { return Future((){}); }
 
+    return showDialog<void>(
+      barrierDismissible: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            CupertinoAlertDialog(
+              title: const Text("語呂を削除しますか？"),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  child: const Text("やめる"),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                CupertinoDialogAction(
+                    child: const Text("削除"),
+                    isDestructiveAction: true,
+                    onPressed: (){
+                      deleteGoroBtn();
+                      Navigator.pop(context);
+                    }
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   //ローカルメソッド
   ////////////////////////////////////////////////////////////////

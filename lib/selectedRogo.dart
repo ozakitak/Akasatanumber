@@ -64,7 +64,7 @@ class SelectedRogoButtonState extends State<SelectedRogoButton> {
       ),),
       style:
       ElevatedButton.styleFrom(
-        padding: EdgeInsets.all(1),
+        padding: EdgeInsets.all(3),
         primary: Colors.transparent,
         elevation: 0,
         onPrimary: color,
