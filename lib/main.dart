@@ -87,6 +87,7 @@ class AllWidget extends StatelessWidget {
     String subNumber = "";
 
     viewModel.setWordList();
+
     
 
     return Container(
@@ -124,7 +125,7 @@ class AllWidget extends StatelessWidget {
                   SizedBox(height: size.height / 50,),
 
                   //選択された数字
-                  SelectedNumbers(size: size, mainNumber: viewModel.mainNumbers, subNumber: viewModel.limitedSubNumbers,),
+                  SelectedNumbers(size: size, viewModel: viewModel,),
 
                   SizedBox(height: size.height / 80,),
 
@@ -165,7 +166,7 @@ class AllWidget extends StatelessWidget {
                           const ListBackground(),
 
                           //ListView
-                          WordListView(size: size, items: viewModel.matchWordList, viewModel: viewModel,),
+                          WordListView(size: size, items: viewModel.matchRogoList, viewModel: viewModel,),
 
                           //鉛筆ボタン
                           Align(alignment: Alignment(1,0.9),
@@ -239,7 +240,7 @@ class AllWidget extends StatelessWidget {
                                 Align(alignment: Alignment(1,1),
                                   child: FooterIconBtn(size: size, imagePath: 'assets/images/deleteSelectWord.png',
                                     onPressd: (){
-                                      print('delete');
+                                    viewModel.deleteGoroBtn();
                                     },),
                                 ),
 
@@ -267,7 +268,7 @@ class AllWidget extends StatelessWidget {
 
                                         child:
                                         Wrap(
-                                          children: viewModel.rogoList,
+                                          children: viewModel.selectedRogoList,
                                         ),
                                       ),
                                     )
@@ -324,13 +325,11 @@ class SelectedNumbers extends StatelessWidget {
   const SelectedNumbers({
     Key? key,
     required this.size,
-    required this.mainNumber,
-    required this.subNumber,
+    required this.viewModel,
   }) : super(key: key);
 
   final Size size;
-  final String mainNumber;
-  final String subNumber;
+  final ViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -340,13 +339,14 @@ class SelectedNumbers extends StatelessWidget {
       children: [
 
         Opacity(opacity: 0, child:
-        Text(subNumber),),
+        Text(viewModel.limitedSubNumbers),),
         Spacer(),
 
-        Text(mainNumber, style: TextStyle(fontSize: size.height / 20,),),
+        Text(viewModel.mainNumbers, style: TextStyle(fontSize: size.height / 20,
+        color: viewModel.editingColor),),
         Container(
            height: size.height / 35,
-          child: Text(subNumber, style: TextStyle(fontSize: size.height / 60,),),
+          child: Text(viewModel.limitedSubNumbers, style: TextStyle(fontSize: size.height / 60,),),
         ),
 
         Spacer(),
@@ -449,18 +449,11 @@ class WordListView extends StatelessWidget {
                       Text('${items[index]}',
                       style: TextStyle(fontSize: size.height / 35),),
                     ),
-                    onTap: (){
-                      //編集モードの場合
-                      if(viewModel.isChangingSelectedWord) {
-                        viewModel.changeSelectedRogo(items[index]);
-                        viewModel.isChangingSelectedWord = false;
+                      onTap:
+                      (){
+                        viewModel.listTileClickListener(items[index]);
+                      },
 
-                      }else{
-                        viewModel.selectWord(items[index], viewModel.mainNumbers);
-                        //スクロールを最下部へ
-                        viewModel.add();
-                      }
-                    },
                   ),
       );
     }
