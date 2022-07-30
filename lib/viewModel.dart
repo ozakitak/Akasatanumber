@@ -15,6 +15,9 @@ class ViewModel extends ChangeNotifier{
 
   TextEditingController inputNumberController = TextEditingController();
 
+  double expandHeight = 0;
+  bool isExpand = false;
+
   //ロゴ選択時の一時的な箱
   String tempMainNumbers = "";
   String tempSubNumbers = "";
@@ -49,9 +52,19 @@ class ViewModel extends ChangeNotifier{
 
    notifyListeners();
   }
+
+  void testExpand(double sizeHeight) {
+
+    if(!isExpand) {
+      expandHeight = sizeHeight;
+    } else {
+     expandHeight = 0;
+    }
+    isExpand = !isExpand;
+    notifyListeners();
+  }
   
-  
-  //全体機能
+  //検索
   ////////////////////////////////////////////////////////////////
   void _showMatchWord(){
     SearchMatchWord model = SearchMatchWord();
@@ -109,8 +122,15 @@ class ViewModel extends ChangeNotifier{
     notifyListeners();
   }
   void decreaseDigit() {
-    if(isChangngRogo || mainNumbers.length <= 1) {
-      _showToast("桁数を変えることはできません。");
+    if(isChangngRogo ) {
+      _showToast("編集中は変えられません");
+      notifyListeners();
+
+      return;
+
+    }
+    if(mainNumbers.length <= 1) {
+      _showToast("最小値です");
       notifyListeners();
 
       return;
@@ -130,8 +150,12 @@ class ViewModel extends ChangeNotifier{
 
 
   void increaseDigit() {
-    if(isChangngRogo || mainNumbers.length >= inputNumber.length) {
-      _showToast("桁数を変えることはできません。");
+    if(isChangngRogo) {
+      _showToast("編集中は変えられません");
+      return;
+    }
+    if(mainNumbers.length >= inputNumber.length) {
+      _showToast("最大桁です");
       return;
     }
 
@@ -149,9 +173,9 @@ class ViewModel extends ChangeNotifier{
   Future<bool?> _showToast( String massage) {
     return Fluttertoast.showToast(
       msg: massage,
-      fontSize: 16.0,
-      textColor: Colors.black,
-      backgroundColor: Colors.black12,
+      fontSize: 20.0,
+      textColor: Colors.white,
+      backgroundColor: Colors.black54,
       gravity: ToastGravity.CENTER,
       timeInSecForIosWeb: 2,
     );
@@ -265,8 +289,10 @@ class ViewModel extends ChangeNotifier{
   //Dialog
   ////////////////////////////////////////////////////////////////
   Future<void> buildDeleteDialog(BuildContext context) {
-    if(selectedRogoList.isEmpty) {return Future((){});}
-    if(isChangngRogo) { return Future((){}); }
+    if(selectedRogoList.isEmpty) {return Future((){ });}
+    if(isChangngRogo) { return Future((){
+      _showToast("編集中は変えられません。");
+    }); }
 
     return showDialog<void>(
       barrierDismissible: true,

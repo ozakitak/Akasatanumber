@@ -61,6 +61,7 @@ class SelectedRogoButtonState extends State<SelectedRogoButton> {
     return ElevatedButton(child:
     Text(widget.selectedRogo,
       style: TextStyle(fontSize: size.height / 40,
+        fontFamily: 'sawarabi',
       ),),
       style:
       ElevatedButton.styleFrom(
@@ -126,51 +127,3 @@ class SelectedRogoButtonState extends State<SelectedRogoButton> {
   }
 }
 //
-// class SelectedRogoButton extends StatelessWidget {
-//
-//    SelectedRogoButton(
-//        { Key? key,
-//          required this.viewModel,
-//          required this.rogoNumber,
-//          required this.rogoStr,
-//   }
-//   ) : super(key: key);
-//    final ViewModel viewModel;
-//    final String rogoNumber;
-//     String rogoStr;
-//
-//
-//
-//   @override
-//   Widget build(BuildContext context) {
-//
-//     final Size size = MediaQuery.of(context).size;
-//
-//
-//     return ElevatedButton(child:
-//     Text(rogoStr,
-//         style: TextStyle(fontSize: size.height / 40)),
-//       style: ElevatedButton.styleFrom(
-//         padding: EdgeInsets.all(1),
-//         primary: Colors.transparent,
-//         elevation: 0,
-//         onPrimary: Colors.blue,
-//       ),
-//       onPressed: (){
-//         //編集モード
-//         viewModel.isChangingSelectedWord = true;
-//         sendSelfToViewModel();
-//
-//         viewModel.researchMatchWord(rogoNumber);
-//
-//       },
-//     );
-//   }
-//   void sendSelfToViewModel() {
-//     viewModel.rogoButton = this;
-//   }
-//   void changeRogo(String rogo) {
-//       rogoStr = rogo;
-//       print("changed!");
-//   }
-// }

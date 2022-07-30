@@ -83,9 +83,6 @@ class AllWidget extends StatelessWidget {
 
 
 
-    String inputNumber = "";
-    String mainNumber = "";
-    String subNumber = "";
 
     viewModel.setWordList();
 
@@ -201,7 +198,7 @@ class AllWidget extends StatelessWidget {
                       //フレーム
                       Container(
                         padding: EdgeInsets.zero,
-                        height: size.height / 5,
+                        height: size.height / 5 + viewModel.expandHeight,
                         decoration: const BoxDecoration(
                             color: Color.fromARGB(217, 217, 217, 217),
                             borderRadius: BorderRadius.only(
@@ -215,7 +212,7 @@ class AllWidget extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Container(
-                            height: size.height / 5.8,
+                            height: size.height / 5.8 + viewModel.expandHeight,
                             width: size.width - 20,
                             decoration: const BoxDecoration(
                                 color: Color.fromARGB(249, 249, 249, 249),
@@ -244,6 +241,15 @@ class AllWidget extends StatelessWidget {
                                     viewModel.buildDeleteDialog(context);
                                     },),
                                 ),
+                                Align(alignment: Alignment(0,-1),
+                                  child: FooterIconBtn(size: size,
+                                    imagePath: viewModel.isExpand ? 'assets/images/down.png' : 'assets/images/expandBtn.png',
+                                    onPressd: (){
+                                      //expand
+                                      viewModel.testExpand(size.height / 2);
+
+                                    },),
+                                ),
 
                                 //expandButton
 
@@ -251,7 +257,7 @@ class AllWidget extends StatelessWidget {
                                 Align(
                                     alignment: Alignment(0,1),
                                     child: Container(
-                                      height: size.height / 7 ,
+                                      height: size.height / 8 + viewModel.expandHeight ,
                                       width: size.width  - 110,
                                       child:SingleChildScrollView(
                                         controller: viewModel.scrollController,
@@ -335,6 +341,7 @@ class SelectedNumbers extends StatelessWidget {
         Spacer(),
 
         Text(viewModel.mainNumbers, style: TextStyle(fontSize: size.height / 20,
+        fontFamily: 'sawarabi',
         color: viewModel.editingColor),),
         Container(
            height: size.height / 35,
@@ -439,7 +446,11 @@ class WordListView extends StatelessWidget {
 
                       child:
                       Text('${items[index]}',
-                      style: TextStyle(fontSize: size.height / 35),),
+                      style: TextStyle(fontSize: size.height / 35,
+                        fontFamily: 'dotGothic',
+                        color:
+                          Color.fromARGB(1000,94,94,94)
+                      ),),
                     ),
                       onTap:
                       (){
