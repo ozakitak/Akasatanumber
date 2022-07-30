@@ -18,6 +18,9 @@ class ViewModel extends ChangeNotifier{
   double expandHeight = 0;
   bool isExpand = false;
 
+  //カスタム時
+  bool isCustom = false;
+
   //ロゴ選択時の一時的な箱
   String tempMainNumbers = "";
   String tempSubNumbers = "";
@@ -27,8 +30,8 @@ class ViewModel extends ChangeNotifier{
   String subNumbers = "";
   String limitedSubNumbers = "";
 
-  //後で消す
-  String selectedWordsGroup = "";
+  String customWord = "";
+
 
 
   //カタカナ
@@ -44,7 +47,16 @@ class ViewModel extends ChangeNotifier{
 
 
   final ScrollController scrollController = ScrollController();
+  final ScrollController customScrollController = ScrollController();
 
+  void setCustomMode() {
+    isCustom = true;
+    notifyListeners();
+  }
+  void unSetCustomMode() {
+    isCustom = false;
+    notifyListeners();
+  }
   void test() {
    selectedRogoList.removeAt(selectedRogoList.length - 1);
    print(selectedRogoList);
@@ -53,7 +65,13 @@ class ViewModel extends ChangeNotifier{
    notifyListeners();
   }
 
-  void testExpand(double sizeHeight) {
+  void closeBox() {
+    isExpand = false;
+    expandHeight = 0;
+    notifyListeners();
+  }
+
+  void expandBox(double sizeHeight) {
 
     if(!isExpand) {
       expandHeight = sizeHeight;
@@ -113,12 +131,14 @@ class ViewModel extends ChangeNotifier{
     SelectedRogoButton temp = selectedRogoList[selectedRogoList.length - 1] as SelectedRogoButton;
     subNumbers = mainNumbers + subNumbers;
     mainNumbers = temp.rogoNumber;
+    inputNumber = mainNumbers + inputNumber;
     limitedSubNumbers = _getLimittedSubNumber(subNumbers);
     selectedRogoList.removeAt(selectedRogoList.length - 1);
     researchMatchWord(mainNumbers, false);
 
     print(mainNumbers);
     print(inputNumber);
+    notifyListeners();
     notifyListeners();
   }
   void decreaseDigit() {
@@ -183,6 +203,8 @@ class ViewModel extends ChangeNotifier{
 
   void generateRogo() {
     resetAll();
+    closeBox();
+    unSetCustomMode();
     matchRogoList = [];
 
     inputNumber = inputNumberController.text;
@@ -202,6 +224,12 @@ class ViewModel extends ChangeNotifier{
       await Clipboard.setData(data);
       print("コピーしたよ");
       _showToast("コピーしました");
+  }
+  void customRogoBtnListener() {
+    int index = int.parse(mainNumbers.substring(0,1));
+    matchRogoList = SearchMatchWord.katakanas[index];
+    notifyListeners();
+
   }
 
   void listTileClickListener(String items){
@@ -225,9 +253,17 @@ class ViewModel extends ChangeNotifier{
     }else{
       _selectWord(items, mainNumbers);
       //スクロールを最下部へ
-      add();
+      add(scrollController);
     }
     notifyListeners();
+  }
+
+  void customModeListTileClickListener(String items) {
+
+    customWord += items;
+    add(customScrollController);
+    notifyListeners();
+
   }
   
   //選択された語呂系
@@ -242,10 +278,10 @@ class ViewModel extends ChangeNotifier{
 
     notifyListeners();
   }
-  void add() {
-    SchedulerBinding.instance.addPostFrameCallback((_) => _scrollToEnd());
+  void add(ScrollController scrollController) {
+    SchedulerBinding.instance.addPostFrameCallback((_) => _scrollToEnd(scrollController));
   }
-  void _scrollToEnd()  {
+  void _scrollToEnd(ScrollController scrollController)  {
     scrollController.animateTo(
         scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 350),
@@ -264,6 +300,8 @@ class ViewModel extends ChangeNotifier{
     selectedRogoList.clear();
     isChangngRogo = false;
     editingColor = Colors.black;
+    customWord = "";
+
   }
 
 //置き換え

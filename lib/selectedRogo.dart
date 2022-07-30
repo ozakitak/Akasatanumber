@@ -76,6 +76,9 @@ class SelectedRogoButtonState extends State<SelectedRogoButton> {
 
   enableFunc(){
     if(!widget.viewModel.isChangngRogo) {
+      //ボックスが広がってたら閉じる
+      widget.viewModel.closeBox();
+
       //選択数字を置き換える
       widget.viewModel.replaceMainNumbers();
       //編集モード

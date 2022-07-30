@@ -147,8 +147,18 @@ class AllWidget extends StatelessWidget {
                     ],
                   ),
 
-                  SizedBox(
-                    height: size.height / 30,
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    alignment: Alignment.center,
+                    height: size.height / 15,
+                    width: size.width - 100,
+                    child: SingleChildScrollView(
+                      controller: viewModel.customScrollController,
+                      child:
+                      Text(viewModel.customWord,
+                        style: TextStyle(fontSize: size.height / 30),
+                      ),
+                    ),
                   ),
 
                   //リスト
@@ -163,19 +173,22 @@ class AllWidget extends StatelessWidget {
                           //背景
                           const ListBackground(),
 
+
                           //ListView
                           WordListView(size: size, items: viewModel.matchRogoList, viewModel: viewModel,),
 
-                          //鉛筆ボタン
-                          Align(alignment: Alignment(1,0.9),
-                              child:
-                              IconButton(icon:
-                              Icon(Icons.edit, size: size.height/20,
-
-                                  color: Color.fromARGB(450,19, 117, 45)),
-                                onPressed: () {print("b");},
-                              )
+                          Visibility(
+                            visible: viewModel.isCustom,
+                            child:
+                            CustomMenu(size: size, viewModel: viewModel,),
                           ),
+
+                          Visibility(
+                              visible: !viewModel.isCustom,
+                              child:
+                              CustomEditBtn(size: size, viewModel: viewModel,),
+                          ),
+                          //鉛筆ボタン
 
                         ],
                       )
@@ -246,7 +259,7 @@ class AllWidget extends StatelessWidget {
                                     imagePath: viewModel.isExpand ? 'assets/images/down.png' : 'assets/images/expandBtn.png',
                                     onPressd: (){
                                       //expand
-                                      viewModel.testExpand(size.height / 2);
+                                      viewModel.expandBox(size.height / 2);
 
                                     },),
                                 ),
@@ -288,6 +301,167 @@ class AllWidget extends StatelessWidget {
 
   }
 
+}
+
+class CustomEditBtn extends StatelessWidget {
+  const CustomEditBtn({
+    Key? key,
+    required this.size,
+    required this.viewModel,
+  }) : super(key: key);
+
+  final Size size;
+  final ViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(alignment: Alignment(1,0.9),
+        child:
+        IconButton(icon:
+        Icon(Icons.edit, size: size.height/20,
+
+            color: Color.fromARGB(450,19, 117, 45)),
+          onPressed: () {
+          viewModel.customRogoBtnListener();
+          viewModel.setCustomMode();
+          },
+        )
+    );
+  }
+}
+
+class CustomMenu extends StatelessWidget {
+  const CustomMenu({
+    Key? key,
+    required this.size,
+    required this.viewModel,
+  }) : super(key: key);
+
+  final Size size;
+  final ViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(alignment: Alignment(0.95,0),
+      child:
+          Stack(
+            children: [
+
+              //menu background
+              Container(
+                width: size.width / 10,
+                height: size.height / 4.5,
+                padding: EdgeInsets.zero,
+                alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                    // Color.fromARGB(1000, 215, 217, 149),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black54,
+                        // Color.fromARGB(222, 222, 222, 222), //色
+                        spreadRadius: 0,
+                        blurRadius: 2,
+                        offset: Offset(1, 4),
+                      ),
+                    ],
+
+                  ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: size.height /60,
+                    ),
+
+                    //ちっちゃいつ
+                    SizedBox(
+                      height: size.height /30,
+                      child:
+                      ElevatedButton(
+                        child: Text("  ツ" ,
+                          style: TextStyle(color: Colors.black,
+                              fontSize: size.height /75),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            elevation: 0,
+                            primary: Colors.transparent
+
+                        ),
+                        onPressed: (){},
+                      ),
+                    ),
+                    Divider(
+                      thickness: 2,
+                    ),
+
+                    //伸ばし棒
+                    SizedBox(
+                      height: size.height /30,
+                      child:
+                      ElevatedButton(
+                        child: Text("ー" ,
+                          style: TextStyle(color: Colors.black,
+                              fontSize: size.height /40),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            elevation: 0,
+                            primary: Colors.transparent
+
+                        ),
+                        onPressed: (){},
+                      ),
+                    ),
+                    Divider(thickness: 2,),
+                    //Delete katakana
+                    SizedBox(
+                      height: size.height /30,
+                      child:
+                          ElevatedButton(
+                            child: Image.asset('assets/images/deleteKatakana.png'),
+                            style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                elevation: 0,
+                                primary: Colors.transparent
+
+                            ),
+                            onPressed: (){},
+                          ),
+                      // IconButton(icon: ,
+                      //   onPressed: (){
+                      //
+                      //   },)
+                    ),
+                    Divider(thickness: 2,),
+
+                  //OK
+                  SizedBox(
+                    height: size.height /25,
+                    child:
+                    ElevatedButton(
+                      child: Text("OK" ,
+                        style: TextStyle(color: Colors.blue,
+                        fontSize: size.height /50),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          elevation: 0,
+                          primary: Colors.transparent
+
+                      ),
+                      onPressed: (){},
+                    ),
+                  ),
+                  ],
+                )
+              ),
+            ],
+          ),
+    );
+  }
 }
 
 class GenerateRogoBtn extends StatelessWidget {
@@ -454,7 +628,13 @@ class WordListView extends StatelessWidget {
                     ),
                       onTap:
                       (){
+                      if(viewModel.isCustom){
+                        viewModel.customModeListTileClickListener(items[index]);
+
+                      }else {
                         viewModel.listTileClickListener(items[index]);
+                      }
+
                       },
 
                   ),
