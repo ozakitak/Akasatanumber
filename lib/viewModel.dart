@@ -291,13 +291,13 @@ class ViewModel extends ChangeNotifier{
     }
 
     String customWord = customMode?.getCustomWordString() ?? "";
+    customCharacterList = [];
     if(isChangngRogo) {
-      // listTileClickListener(customWord);
+      listTileClickListener(customWord);
       isCustom = false;
       return;
     }
-    customCharacterList = [];
-    // _selectWord(customWord, mainNumbers);
+    _selectWord(customWord, mainNumbers);
     unSetCustomMode();
     notifyListeners();
   }
