@@ -1,5 +1,6 @@
 
 import 'package:akasatanumber/searchWord.dart';
+import 'package:akasatanumber/viewModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -32,11 +33,9 @@ class CustomMode{
     edittedGoro.add(item);
     countUp();
   }
-  void okClickListener(BuildContext context) {
+  void okClickListener(BuildContext context, ViewModel viewModel) {
     //編集途中だったら
-    if(edittedGoro.length < mainNumber.length) {
-      buildDeleteDialog(context);
-    }
+    buildDeleteDialog(context, viewModel);
   }
   String getCustomWordString() {
     String customWord = "";
@@ -77,7 +76,7 @@ class CustomMode{
   }
 
 
-  Future<void> buildDeleteDialog(BuildContext context) {
+  Future<void> buildDeleteDialog(BuildContext context, ViewModel viewModel) {
     return showDialog<void>(
       barrierDismissible: true,
       context: context,
@@ -96,7 +95,15 @@ class CustomMode{
                     child: const Text("中止"),
                     isDestructiveAction: true,
                     onPressed: (){
+                      if(viewModel.isCustom) {
+                        viewModel.rogoButton?.state?.changeColor();
+                        viewModel.isChangngRogo = false;
+                      }
                       Navigator.pop(context);
+                      viewModel.matchRogoList = [];
+                      viewModel.customCharacterList = [];
+                      viewModel.isCustom = false;
+                      viewModel.showMatchWord();
                     }
                 ),
               ],

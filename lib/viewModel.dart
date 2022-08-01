@@ -21,6 +21,7 @@ class ViewModel extends ChangeNotifier{
   double expandHeight = 0;
   bool isExpand = false;
 
+  String testMainNumber = "";
   //カスタム時
   bool isCustom = false;
 
@@ -124,14 +125,17 @@ class ViewModel extends ChangeNotifier{
     mainNumbers = subNumbers;
 
   }
-  void _showMatchWord(){
+  void showMatchWord(){
     SearchMatchWord model = SearchMatchWord();
 
     _searchMatchWord(model: model);
 
+
     mainNumbers = inputNumber.substring(0, model.getMaxMatchCount());
+    testMainNumber = mainNumbers;
     subNumbers = inputNumber.substring(model.getMaxMatchCount());
     limitedSubNumbers = _getLimittedSubNumber(subNumbers);
+    print("showMatch${tempMainNumbers}");
 
     notifyListeners();
 
@@ -141,6 +145,7 @@ class ViewModel extends ChangeNotifier{
     SearchMatchWord search = model ?? SearchMatchWord();
 
     if(inputNumber.isEmpty){ return; }
+    print("searchMatchWord${mainNumbers}");
 
     matchRogoList = search.searchMatchword(wordList, inputNumber, true);
     notifyListeners();
@@ -178,7 +183,6 @@ class ViewModel extends ChangeNotifier{
 
     print(mainNumbers);
     print(inputNumber);
-    notifyListeners();
     notifyListeners();
   }
   void decreaseDigit() {
@@ -248,7 +252,7 @@ class ViewModel extends ChangeNotifier{
     matchRogoList = [];
 
     inputNumber = inputNumberController.text;
-    _showMatchWord();
+    showMatchWord();
   }
 
   void copyClickListener() async {
@@ -269,7 +273,7 @@ class ViewModel extends ChangeNotifier{
   //カスタムモード
   ////////////////////////////////////////////////////////////////
   void customRogoBtnListener() {
-    if(mainNumbers.isEmpty) {return;}
+    if(mainNumbers.isEmpty ) {return;}
 
     customMode = CustomMode(mainNumber: mainNumbers);
     matchRogoList = customMode?.getCustomList() ?? [];
@@ -280,10 +284,20 @@ class ViewModel extends ChangeNotifier{
 
   }
   void okBtnClickListener(BuildContext context){
-    customMode?.okClickListener(context);
+    if(customMode!.edittedGoro.length < customMode!.mainNumber.length ){
+      customMode?.okClickListener(context, this  );
+      notifyListeners();
+      return;
+    }
+
     String customWord = customMode?.getCustomWordString() ?? "";
+    if(isChangngRogo) {
+      // listTileClickListener(customWord);
+      isCustom = false;
+      return;
+    }
     customCharacterList = [];
-    _selectWord(customWord, mainNumbers);
+    // _selectWord(customWord, mainNumbers);
     unSetCustomMode();
     notifyListeners();
   }
@@ -358,7 +372,9 @@ class ViewModel extends ChangeNotifier{
 
 
     }else{
-      _selectWord(items, mainNumbers);
+      //FIXME
+      _selectWord(items, testMainNumber);
+      print("tile${mainNumbers}");
       //スクロールを最下部へ
       add(scrollController);
     }
@@ -406,11 +422,11 @@ class ViewModel extends ChangeNotifier{
   }
 
 //置き換え
-  void replaceMainNumbers() {
+  void replaceMainNumbers(String rogoNumber) {
     tempMainNumbers = mainNumbers;
     tempSubNumbers = limitedSubNumbers;
 
-    mainNumbers = rogoButton?.rogoNumber ?? "";
+    mainNumbers = rogoNumber;
     limitedSubNumbers = "";
     notifyListeners();
   }
@@ -468,9 +484,12 @@ class ViewModel extends ChangeNotifier{
 
   //リスト要素クリック時
   void _selectWord(String selectedWord, String rogoNumber) {
+    print(testMainNumber);
+    print("selectWord${mainNumbers}");
+
     inputNumber = subNumbers.toString();
     matchRogoList = [];
-    _showMatchWord();
+    showMatchWord();
     print(limitedSubNumbers);
 
     addSelectedRogo(selectedWord, rogoNumber);
