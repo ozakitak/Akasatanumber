@@ -95,15 +95,20 @@ class CustomMode{
                     child: const Text("中止"),
                     isDestructiveAction: true,
                     onPressed: (){
-                      if(viewModel.isCustom) {
+                      if(viewModel.isChangngRogo) {
                         viewModel.rogoButton?.state?.changeColor();
                         viewModel.isChangngRogo = false;
+                        viewModel.isCustom = false;
+                        viewModel.showMatchWord();
+                        viewModel.customCharacterList = [];
+                        Navigator.pop(context);
+                      } else {
+                        Navigator.pop(context);
+                        viewModel.matchRogoList = [];
+                        viewModel.customCharacterList = [];
+                        viewModel.isCustom = false;
+                        viewModel.showMatchWord();
                       }
-                      Navigator.pop(context);
-                      viewModel.matchRogoList = [];
-                      viewModel.customCharacterList = [];
-                      viewModel.isCustom = false;
-                      viewModel.showMatchWord();
                     }
                 ),
               ],

@@ -135,7 +135,6 @@ class ViewModel extends ChangeNotifier{
     testMainNumber = mainNumbers;
     subNumbers = inputNumber.substring(model.getMaxMatchCount());
     limitedSubNumbers = _getLimittedSubNumber(subNumbers);
-    print("showMatch${tempMainNumbers}");
 
     notifyListeners();
 
@@ -145,7 +144,6 @@ class ViewModel extends ChangeNotifier{
     SearchMatchWord search = model ?? SearchMatchWord();
 
     if(inputNumber.isEmpty){ return; }
-    print("searchMatchWord${mainNumbers}");
 
     matchRogoList = search.searchMatchword(wordList, inputNumber, true);
     notifyListeners();
@@ -180,9 +178,8 @@ class ViewModel extends ChangeNotifier{
     limitedSubNumbers = _getLimittedSubNumber(subNumbers);
     selectedRogoList.removeAt(selectedRogoList.length - 1);
     researchMatchWord(mainNumbers, false);
+    print(subNumbers);
 
-    print(mainNumbers);
-    print(inputNumber);
     notifyListeners();
   }
   void decreaseDigit() {
@@ -298,6 +295,7 @@ class ViewModel extends ChangeNotifier{
       return;
     }
     _selectWord(customWord, mainNumbers);
+    add(scrollController);
     unSetCustomMode();
     notifyListeners();
   }
@@ -373,8 +371,7 @@ class ViewModel extends ChangeNotifier{
 
     }else{
       //FIXME
-      _selectWord(items, testMainNumber);
-      print("tile${mainNumbers}");
+      _selectWord(items, mainNumbers);
       //スクロールを最下部へ
       add(scrollController);
     }
@@ -485,12 +482,10 @@ class ViewModel extends ChangeNotifier{
   //リスト要素クリック時
   void _selectWord(String selectedWord, String rogoNumber) {
     print(testMainNumber);
-    print("selectWord${mainNumbers}");
 
     inputNumber = subNumbers.toString();
     matchRogoList = [];
     showMatchWord();
-    print(limitedSubNumbers);
 
     addSelectedRogo(selectedWord, rogoNumber);
 
