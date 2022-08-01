@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:akasatanumber/introduceStr.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:akasatanumber/readTxtFile.dart';
@@ -10,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'customMode.dart';
 
 class ViewModel extends ChangeNotifier{
 
@@ -30,24 +33,57 @@ class ViewModel extends ChangeNotifier{
   String subNumbers = "";
   String limitedSubNumbers = "";
 
-  String customWord = "";
 
+
+  String introduceStr = IntroduceStr.introduceList[0];
 
 
   //カタカナ
 
+  //辞書
   List<String> wordList = ["aaa"];
+  //検索にヒットした語句
   List<String> matchRogoList = [];
+  //下の選択した語句
   List<Widget> selectedRogoList = [] ;
-  SelectedRogoButton? rogoButton;
+  //カスタム作成時に選んだ単文字
+  List<Widget> customCharacterList = [];
 
   bool isChangngRogo = false;
+  bool isIntroduce = true;
+
 
   Color editingColor = Colors.black;
+
+  SelectedRogoButton? rogoButton;
+  CustomMode? customMode;
 
 
   final ScrollController scrollController = ScrollController();
   final ScrollController customScrollController = ScrollController();
+
+  int count = 0;
+  void setIntroduce() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // エラーの出ていた処理
+      if(matchRogoList.isNotEmpty || mainNumbers.isNotEmpty) {
+
+        isIntroduce = false;
+        notifyListeners();
+        return;
+      }
+
+      isIntroduce = true;
+      if(count == 0) {
+        introduceStr = IntroduceStr.introduceList[0];
+        count++;
+      }else {
+        introduceStr = IntroduceStr.getRandomIntroduce();
+      }
+
+      notifyListeners();
+    });
+  }
 
   void setCustomMode() {
     isCustom = true;
@@ -84,6 +120,10 @@ class ViewModel extends ChangeNotifier{
   
   //検索
   ////////////////////////////////////////////////////////////////
+  void replaceMainToSub() {
+    mainNumbers = subNumbers;
+
+  }
   void _showMatchWord(){
     SearchMatchWord model = SearchMatchWord();
 
@@ -142,7 +182,7 @@ class ViewModel extends ChangeNotifier{
     notifyListeners();
   }
   void decreaseDigit() {
-    if(isChangngRogo ) {
+    if(isChangngRogo || isCustom ) {
       _showToast("編集中は変えられません");
       notifyListeners();
 
@@ -170,7 +210,7 @@ class ViewModel extends ChangeNotifier{
 
 
   void increaseDigit() {
-    if(isChangngRogo) {
+    if(isChangngRogo || isCustom) {
       _showToast("編集中は変えられません");
       return;
     }
@@ -225,11 +265,78 @@ class ViewModel extends ChangeNotifier{
       print("コピーしたよ");
       _showToast("コピーしました");
   }
+
+  //カスタムモード
+  ////////////////////////////////////////////////////////////////
   void customRogoBtnListener() {
-    int index = int.parse(mainNumbers.substring(0,1));
-    matchRogoList = SearchMatchWord.katakanas[index];
+    if(mainNumbers.isEmpty) {return;}
+
+    customMode = CustomMode(mainNumber: mainNumbers);
+    matchRogoList = customMode?.getCustomList() ?? [];
+    setCustomMode();
+
+
     notifyListeners();
 
+  }
+  void okBtnClickListener(BuildContext context){
+    customMode?.okClickListener(context);
+    String customWord = customMode?.getCustomWordString() ?? "";
+    customCharacterList = [];
+    _selectWord(customWord, mainNumbers);
+    unSetCustomMode();
+    notifyListeners();
+  }
+  void deleteCharacterBtnListener() {
+    customMode?.deleteCharacter();
+    _upgradeMatchCharacterList();
+    _upgradeCustomCharacterList();
+    notifyListeners();
+
+  }
+
+  void ignoredCharacterBtnListener(bool isSmallTsu) {
+
+    if(isSmallTsu) {
+      customMode?.addIgnoreCharacterListener(isSmallTsu: true);
+    } else {
+      customMode?.addIgnoreCharacterListener(isSmallTsu: false);
+    }
+
+    _upgradeCustomCharacterList();
+
+  }
+  void customModeListTileClickListener(String items) {
+
+    if(customMode?.isMaxCount ?? false ) {
+      return;
+    }
+    //スクロール
+    add(customScrollController);
+
+    customMode?.listClickListener(items);
+
+
+    //リストビューを更新
+    _upgradeMatchCharacterList();
+    //テキストウィジェットリストを更新
+    _upgradeCustomCharacterList();
+
+
+    if(customMode?.isMaxCount ?? false ) {
+      matchRogoList = [];
+    }
+
+    notifyListeners();
+  }
+
+  void _upgradeMatchCharacterList() {
+    matchRogoList =  customMode?.getCustomList() ?? [];
+    notifyListeners();
+  }
+  void _upgradeCustomCharacterList(){
+    customCharacterList = customMode?.getCustomTextList() ?? [];
+    notifyListeners();
   }
 
   void listTileClickListener(String items){
@@ -258,14 +365,7 @@ class ViewModel extends ChangeNotifier{
     notifyListeners();
   }
 
-  void customModeListTileClickListener(String items) {
 
-    customWord += items;
-    add(customScrollController);
-    notifyListeners();
-
-  }
-  
   //選択された語呂系
   ////////////////////////////////////////////////////////////////
   void changeSelectedRogo(String rogo) {
@@ -294,13 +394,14 @@ class ViewModel extends ChangeNotifier{
   ////////////////////////////////////////////////////////////////
   void clearMatchWordList () {
     matchRogoList = [];
+    setIntroduce();
     notifyListeners();
   }
   void resetAll() {
     selectedRogoList.clear();
     isChangngRogo = false;
     editingColor = Colors.black;
-    customWord = "";
+    customCharacterList = [];
 
   }
 
@@ -340,14 +441,14 @@ class ViewModel extends ChangeNotifier{
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             CupertinoAlertDialog(
-              title: const Text("語呂を削除しますか？"),
+              title: const Text("最後に追加した語句を取り消しますか？"),
               actions: <Widget>[
                 CupertinoDialogAction(
                   child: const Text("やめる"),
                   onPressed: () => Navigator.pop(context),
                 ),
                 CupertinoDialogAction(
-                    child: const Text("削除"),
+                    child: const Text("取り消す"),
                     isDestructiveAction: true,
                     onPressed: (){
                       deleteGoroBtn();

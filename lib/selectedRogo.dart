@@ -58,20 +58,21 @@ class SelectedRogoButtonState extends State<SelectedRogoButton> {
     final Size size = MediaQuery.of(context).size;
 
 
-    return ElevatedButton(child:
-    Text(widget.selectedRogo,
-      style: TextStyle(fontSize: size.height / 40,
-        fontFamily: 'sawarabi',
-      ),),
-      style:
-      ElevatedButton.styleFrom(
-        padding: EdgeInsets.all(3),
-        primary: Colors.transparent,
-        elevation: 0,
-        onPrimary: color,
-      ),
-      onPressed: enableFunc
-    );
+    return
+      ElevatedButton(child:
+      Text(widget.selectedRogo,
+        style: TextStyle(fontSize: size.height / 40,
+          fontFamily: 'dotGothic',
+        ),),
+          style:
+          ElevatedButton.styleFrom(
+            padding: EdgeInsets.all(4),
+            primary: Colors.transparent,
+            elevation: 0,
+            onPrimary: color,
+          ),
+          onPressed: enableFunc
+      );
   }
 
   enableFunc(){

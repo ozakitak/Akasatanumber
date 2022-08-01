@@ -1,4 +1,5 @@
 
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -84,6 +85,7 @@ class AllWidget extends StatelessWidget {
 
 
 
+    viewModel.setIntroduce();
     viewModel.setWordList();
 
     
@@ -155,9 +157,10 @@ class AllWidget extends StatelessWidget {
                     child: SingleChildScrollView(
                       controller: viewModel.customScrollController,
                       child:
-                      Text(viewModel.customWord,
-                        style: TextStyle(fontSize: size.height / 30),
-                      ),
+                          Wrap(
+                            children:
+                            viewModel.customCharacterList,
+                          )
                     ),
                   ),
 
@@ -171,17 +174,44 @@ class AllWidget extends StatelessWidget {
                         children: [
 
                           //背景
-                          const ListBackground(),
-
-
-                          //ListView
-                          WordListView(size: size, items: viewModel.matchRogoList, viewModel: viewModel,),
-
+                           const ListBackground(),
                           Visibility(
-                            visible: viewModel.isCustom,
-                            child:
-                            CustomMenu(size: size, viewModel: viewModel,),
+                              visible: viewModel.isIntroduce ,
+                              child:
+                              Container(
+                                alignment: Alignment.center,
+                                padding: EdgeInsets.fromLTRB(size.width / 10, size.height/50, size.width/10, size.height/50),
+
+                                child:
+                                AnimatedTextKit(
+                                  animatedTexts: [
+                                    FadeAnimatedText(
+                                        viewModel.introduceStr
+                                        ,
+                                        textAlign: TextAlign.center
+                                        ,
+                                        textStyle: TextStyle(fontFamily: 'dotGothic',
+                                            fontSize:  17,
+                                            color:
+                                            Color.fromARGB(1000,94,94,94)),
+                                        duration: Duration(seconds: 100),
+                                        fadeOutBegin: 0.9,
+                                        fadeInEnd: 0.01
+                                    )
+                                  ],
+                                ),
+                              ),
                           ),
+
+
+                  //ListView
+                  WordListView(size: size, items: viewModel.matchRogoList, viewModel: viewModel,),
+
+                          // Visibility(
+                          //   visible: viewModel.isCustom,
+                          //   child:
+                          //   CustomMenu(size: size, viewModel: viewModel,),
+                          // ),
 
                           Visibility(
                               visible: !viewModel.isCustom,
@@ -190,9 +220,38 @@ class AllWidget extends StatelessWidget {
                           ),
                           //鉛筆ボタン
 
+                          Visibility(
+                            visible: viewModel.isCustom,
+                              child:
+                              Stack(
+                                children: [
+
+                                  Align(alignment: Alignment(0.9,0.9),
+                                    child:
+                                    IgnoreCharacter(ignoreCharacter: "ー", size: size,
+                                      onPressed: (){
+                                        viewModel.ignoredCharacterBtnListener(false);
+                                      },),
+                                  ),
+                                  Align(alignment: Alignment(0.7,0.5),
+                                    child:
+                                    IgnoreCharacter(ignoreCharacter: "ッ", size: size,
+                                      onPressed: (){
+                                        viewModel.ignoredCharacterBtnListener(true);
+                                      },),
+                                  )
+                                ],
+                              )
+                          ),
                         ],
                       )
                   ),
+                  Visibility(
+                    visible: viewModel.isCustom,
+                      child:
+                      CustomMenus(size: size, viewModel: viewModel,),
+                  ),
+
 
                 ],
               ),
@@ -303,6 +362,148 @@ class AllWidget extends StatelessWidget {
 
 }
 
+class CustomMenus extends StatelessWidget {
+   const CustomMenus({
+    Key? key,
+    required this.size,
+    required this.viewModel,
+  }) : super(key: key);
+
+
+  final Size size;
+  final ViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+
+        Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+            CustomMenuButtons(size: size,
+            imagePath: "assets/images/deleteKatakana.png",
+            onPressd: () {
+              viewModel.deleteCharacterBtnListener();
+            },),
+
+              CustomMenuButtons(size: size,
+                imagePath: "assets/images/done.png",
+                onPressd: () {
+                  viewModel.okBtnClickListener(context);
+                },),
+              SizedBox(
+                width: size.width / 15,
+              )
+            ]
+        ),
+      ],
+    );
+  }
+}
+
+class CustomMenuButtons extends StatelessWidget {
+  const CustomMenuButtons({
+    Key? key,
+    required this.size,
+    required this.imagePath,
+    required this.onPressd,
+  }) : super(key: key);
+
+
+  final VoidCallback onPressd;
+  final String imagePath;
+  final Size size;
+
+  @override
+  Widget build(BuildContext context) {
+    return
+      Container(
+          height: size.height / 22,
+          width: size.height / 22,
+          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+          child:
+          ElevatedButton(onPressed: onPressd,
+            style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.zero,
+                elevation: 0,
+                primary: Colors.transparent
+            )
+            ,
+            child:
+            Image.asset(imagePath),
+          ),
+      );
+  }
+}
+
+class IgnoreCharacter extends StatelessWidget {
+   IgnoreCharacter({
+    Key? key,
+    required this.onPressed,
+    required this.ignoreCharacter,
+    required this.size,
+  }) : super(key: key);
+  final VoidCallback onPressed;
+  final String ignoreCharacter;
+  final Size size;
+
+
+  @override
+  Widget build(BuildContext context) {
+    return
+    Container(
+      height: size.height / 20,
+      width: size.height / 15,
+      child:
+      ElevatedButton(onPressed: onPressed,
+          style:
+          ElevatedButton.styleFrom(
+            padding: EdgeInsets.zero,
+            elevation: 0,
+            primary: Colors.transparent,
+          )
+          ,
+          child:
+          Stack(
+            children: <Widget>[
+              // Stroked text as border.
+              Text(
+                ignoreCharacter ,
+                style: TextStyle(
+                  fontFamily: 'dotGothic',
+                  shadows: [
+                    Shadow(
+                        offset: Offset(0, 5.0),
+                        blurRadius: 8.0,
+                        color: Colors.grey
+                    ),
+
+                  ],
+                  fontSize: size.height / 30,
+                  foreground: Paint()
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 1
+                    ..color = Colors.black,
+
+                ),
+              ),
+              // Solid text as fill.
+              Text(
+                ignoreCharacter,
+                style: TextStyle(
+                  fontFamily: 'dotGothic',
+                  fontSize: size.height / 30,
+                  color: Colors.black
+                ),
+              ),
+            ],
+          )
+      ),
+    );
+  }
+}
+
 class CustomEditBtn extends StatelessWidget {
   const CustomEditBtn({
     Key? key,
@@ -323,7 +524,6 @@ class CustomEditBtn extends StatelessWidget {
             color: Color.fromARGB(450,19, 117, 45)),
           onPressed: () {
           viewModel.customRogoBtnListener();
-          viewModel.setCustomMode();
           },
         )
     );
@@ -354,14 +554,13 @@ class CustomMenu extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
+                    border: Border.all(color: Colors.black26),
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.white,
                     // Color.fromARGB(1000, 215, 217, 149),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black54,
-                        // Color.fromARGB(222, 222, 222, 222), //色
+                        color: Colors.black12,
                         spreadRadius: 0,
                         blurRadius: 2,
                         offset: Offset(1, 4),
@@ -390,11 +589,14 @@ class CustomMenu extends StatelessWidget {
                             primary: Colors.transparent
 
                         ),
-                        onPressed: (){},
+                        onPressed: (){
+                          viewModel.ignoredCharacterBtnListener(true);
+                        },
                       ),
                     ),
                     Divider(
-                      thickness: 2,
+                      color: Colors.black26,
+                      thickness: 1,
                     ),
 
                     //伸ばし棒
@@ -412,10 +614,12 @@ class CustomMenu extends StatelessWidget {
                             primary: Colors.transparent
 
                         ),
-                        onPressed: (){},
+                        onPressed: (){
+                          viewModel.ignoredCharacterBtnListener(false);
+                        },
                       ),
                     ),
-                    Divider(thickness: 2,),
+                    Divider(color: Colors.black26, thickness: 1,),
                     //Delete katakana
                     SizedBox(
                       height: size.height /30,
@@ -428,23 +632,26 @@ class CustomMenu extends StatelessWidget {
                                 primary: Colors.transparent
 
                             ),
-                            onPressed: (){},
+                            onPressed: (){
+                              viewModel.deleteCharacterBtnListener();
+                            },
                           ),
                       // IconButton(icon: ,
                       //   onPressed: (){
                       //
                       //   },)
                     ),
-                    Divider(thickness: 2,),
+                    Divider(color: Colors.black26, thickness: 1,),
 
                   //OK
                   SizedBox(
                     height: size.height /25,
                     child:
                     ElevatedButton(
-                      child: Text("OK" ,
-                        style: TextStyle(color: Colors.blue,
-                        fontSize: size.height /50),
+                      child: Icon(
+                        Icons.done,
+                        color: Colors.blueAccent,
+                        size: size.height / 30,
                       ),
                       style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.zero,
@@ -452,7 +659,9 @@ class CustomMenu extends StatelessWidget {
                           primary: Colors.transparent
 
                       ),
-                      onPressed: (){},
+                      onPressed: (){
+                        viewModel.okBtnClickListener(context);
+                      },
                     ),
                   ),
                   ],
@@ -505,27 +714,28 @@ class SelectedNumbers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
 
-      children: [
+        children: [
 
-        Opacity(opacity: 0, child:
-        Text(viewModel.limitedSubNumbers),),
-        Spacer(),
+          Opacity(opacity: 0, child:
+          Text(viewModel.limitedSubNumbers),),
+          Spacer(),
 
-        Text(viewModel.mainNumbers, style: TextStyle(fontSize: size.height / 20,
-        fontFamily: 'sawarabi',
-        color: viewModel.editingColor),),
-        Container(
-           height: size.height / 35,
-          child: Text(viewModel.limitedSubNumbers, style: TextStyle(fontSize: size.height / 60,),),
-        ),
+          Text(viewModel.mainNumbers, style: TextStyle(fontSize: size.height / 20,
+              fontFamily: 'sawarabi',
+              color: viewModel.editingColor),),
+          Container(
+            height: size.height / 35,
+            child: Text(viewModel.limitedSubNumbers, style: TextStyle(fontSize: size.height / 60,),),
+          ),
 
-        Spacer(),
+          Spacer(),
 
-      ],
-    );
+        ],
+      );
   }
 }
 
@@ -646,7 +856,7 @@ class WordListView extends StatelessWidget {
 }
 
 class ListBackground extends StatelessWidget {
-  const ListBackground({
+   const ListBackground({
     Key? key,
   }) : super(key: key);
 
