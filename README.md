@@ -1,7 +1,8 @@
 # akasatanumber
 
 
-![サンプル画像](./スクリーンショット 2022-11-10 11.40.08.png)
+<img width="379" alt="スクリーンショット 2022-11-10 11 40 08" src="https://user-images.githubusercontent.com/66878750/200988246-b0d3c96a-3ec8-433f-9c6c-1de4fd85a575.png">
+
 
 ## Getting Started
 
