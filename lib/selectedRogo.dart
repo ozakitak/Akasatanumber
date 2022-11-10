@@ -1,13 +1,6 @@
 import 'package:akasatanumber/viewModel.dart';
 import 'package:flutter/material.dart';
 
-// class SelectRogo{
-//   List<SelectedRogoButton> rogoList = [];
-//
-//   void addSelectedRogo({required selectedRogo}){
-//     rogoList.add(SelectedRogoButton(selectedRogo: selectedRogo, viewModel: this,));
-//   }
-// }
 class SelectedRogoButton extends StatefulWidget {
   SelectedRogoButton({Key? key, required this.selectedRogo, required this.rogoNumber, required this.viewModel, }) : super(key: key);
 
@@ -28,14 +21,6 @@ class SelectedRogoButton extends StatefulWidget {
 }
 
 class SelectedRogoButtonState extends State<SelectedRogoButton> {
-  //  SelectedRogoButtonState(
-  //      {
-  //   Key? key,
-  //   required this.selectedRogo,
-  //    required this.viewModel,
-  // }
-  // ) : super(key: key);
-  //  final ViewModel viewModel;
 
 
 

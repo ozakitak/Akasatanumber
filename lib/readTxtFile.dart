@@ -3,7 +3,7 @@ import 'package:flutter/services.dart'; //rootBundle
 import 'dart:async'; //Future
 
 class ReadTxtFile{
-  final String filePath = "assets/documents/wordList.txt";
+  final String filePath = "assets/documents/testWordList2.txt";
 
 
   Future<String> _loadAssetsTextFile() async {

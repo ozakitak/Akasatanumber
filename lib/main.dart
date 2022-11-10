@@ -1,4 +1,3 @@
-
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,10 +18,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return  MaterialApp(
       title: _title,
-      home: Scaffold(
-        body: MyStatefulWidget(),
+      home: GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+        child:
+        Scaffold(
+          resizeToAvoidBottomInset: false,
+          body:
+          MyStatefulWidget(),
+        ),
       ),
     );
   }
@@ -75,13 +80,10 @@ class AllWidget extends StatelessWidget {
 
    @override
   Widget build(BuildContext context) {
+     //ViewModel
      final ViewModel viewModel = Provider.of<ViewModel>(context);
 
     final Size size = MediaQuery.of(context).size;
-
-
-
-
 
 
 
@@ -91,9 +93,10 @@ class AllWidget extends StatelessWidget {
     
 
     return Container(
+      height: size.height,
+        width: size.width,
         child: Stack(
           children: [
-            //背景の白さが足りかったので
             Container(
               width: size.width,
               height: size.height,
@@ -695,7 +698,8 @@ class GenerateRogoBtn extends StatelessWidget {
             onPrimary: Colors.blue,
           ),
           onPressed: (){
-          viewModel.generateRogo();
+            FocusScope.of(context).requestFocus(FocusNode());
+            viewModel.generateRogo();
           },
         )
     );
@@ -908,10 +912,13 @@ class InputNumberBox extends StatelessWidget {
 
               Container(
                 width:  size.width - 70,
-                child: TextField(
+                child:
+                TextField(
                   controller: inputNumberController,
                   keyboardType: TextInputType.number,
+
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+
 
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
