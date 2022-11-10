@@ -1,6 +1,6 @@
 # akasatanumber
 
-A new Flutter application.
+
 ![サンプル画像](./スクリーンショット 2022-11-10 11.40.08.png)
 
 ## Getting Started
